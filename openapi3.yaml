@@ -1,0 +1,152 @@
+openapi: 3.0.1
+info:
+  title: id-2-osm
+  description: Service to retrieve mapping 
+  version: 0.0.1
+servers:
+  - url: http://localhost:1337
+paths:
+  /id:
+    post:
+      summary: add new id mapping
+      tags:
+        - "create"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AllIds"
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: "#/components/responses/BadRequest"
+
+  /externalId/{osmId}:
+    get:
+      summary: get externalId by osmId
+      parameters:
+        - $ref: "#/components/parameters/osmId"
+      tags:
+        - "fetch"
+      responses:
+        '200':
+          $ref: "#/components/responses/GetExternalId"
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+  /externalId/{externalId}:
+    delete:
+      summary: remove mapping by externalId
+      parameters:
+        - $ref: "#/components/parameters/externalId"
+      tags:
+        - "delete"
+      responses:
+        '200':
+          $ref:  "#/components/responses/IdDeleted"
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+  /osmId/{externalId}:
+    get:
+      summary: get osmId by externalId
+      parameters:
+        - $ref: "#/components/parameters/externalId"
+      tags:
+        - "fetch"
+      responses:
+        '200':
+          $ref: "#/components/responses/GetOsmId"
+        '404':
+          $ref: "#/components/responses/NotFound"
+  /osmId/{osmId}:
+    delete:
+      summary: remove mapping by osmId
+      parameters:
+        - $ref: "#/components/parameters/osmId"
+      tags:
+        - "delete"
+      responses:
+        '200':
+          $ref:  "#/components/responses/IdDeleted"
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+
+components:
+  parameters:
+    externalId:
+      in: path
+      name: externalId
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: the external id
+    osmId:
+      in: path
+      name: osmId
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: the osm id
+  responses:
+    GetOsmId:
+      description: The requested osmId
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/OsmId"
+    GetExternalId:
+      description: The requested externalId
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ExternalId"
+    IdDeleted:
+      description: the requested id has been IdDeleted
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AllIds"
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The specified id was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    OsmId:
+      type: object
+      properties:
+        osmId:
+          type: number
+          minimum: 1
+    ExternalId:
+      type: object
+      properties:
+        externalId:
+          type: string
+          format: uuid
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    AllIds:
+      required:
+        - externalId
+        - osmId
+      allOf:
+        - $ref: "#/components/schemas/OsmId"
+        - $ref: "#/components/schemas/ExternalId"
