@@ -1,79 +1,65 @@
 openapi: 3.0.1
 info:
-  title: id-2-osm
+  title: external-id-2-osm
   description: Service to retrieve mapping 
   version: 0.0.1
 servers:
   - url: http://localhost:1337
 paths:
-  /id:
+  '/entity':
     post:
-      summary: add new id mapping
+      summary: Add a new external entity to the id mapping
       tags:
-        - "create"
+        - entity
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AllIds"
+              $ref: "#/components/schemas/Entity"
       responses:
         '201':
           description: Created
         '400':
-          $ref: "#/components/responses/BadRequest"
-
-  /externalId/{osmId}:
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+  '/entity/{externalId}':
     get:
-      summary: get externalId by osmId
-      parameters:
-        - $ref: "#/components/parameters/osmId"
+      summary: Get the entity by external id
       tags:
-        - "fetch"
+        - entity
+      parameters:
+        - $ref: '#/components/parameters/externalId'
       responses:
         '200':
-          $ref: "#/components/responses/GetExternalId"
+          description: The entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '404':
-          $ref: "#/components/responses/NotFound"
-
-  /externalId/{externalId}:
+          $ref: '#/components/responses/NotFound'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
     delete:
-      summary: remove mapping by externalId
-      parameters:
-        - $ref: "#/components/parameters/externalId"
+      summary: Remove an entity
       tags:
-        - "delete"
-      responses:
-        '200':
-          $ref:  "#/components/responses/IdDeleted"
-        '404':
-          $ref: "#/components/responses/NotFound"
-
-  /osmId/{externalId}:
-    get:
-      summary: get osmId by externalId
+        - entity
       parameters:
-        - $ref: "#/components/parameters/externalId"
-      tags:
-        - "fetch"
+        - $ref: '#/components/parameters/externalId'
       responses:
-        '200':
-          $ref: "#/components/responses/GetOsmId"
+        '204':
+          description: Deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '404':
-          $ref: "#/components/responses/NotFound"
-  /osmId/{osmId}:
-    delete:
-      summary: remove mapping by osmId
-      parameters:
-        - $ref: "#/components/parameters/osmId"
-      tags:
-        - "delete"
-      responses:
-        '200':
-          $ref:  "#/components/responses/IdDeleted"
-        '404':
-          $ref: "#/components/responses/NotFound"
-
-
+          $ref: '#/components/responses/NotFound'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
 components:
   parameters:
     externalId:
@@ -82,35 +68,10 @@ components:
       required: true
       schema:
         type: string
-        format: uuid
+        minLength: 1
       description: the external id
-    osmId:
-      in: path
-      name: osmId
-      required: true
-      schema:
-        type: string
-        format: uuid
-      description: the osm id
+      example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
   responses:
-    GetOsmId:
-      description: The requested osmId
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/OsmId"
-    GetExternalId:
-      description: The requested externalId
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ExternalId"
-    IdDeleted:
-      description: the requested id has been IdDeleted
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/AllIds"
     BadRequest:
       description: Bad request
       content:
@@ -118,35 +79,41 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     NotFound:
-      description: The specified id was not found
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnexpectedError:
+      description: Unexpected Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntity:
+      description: Unprocessable Entity
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
   schemas:
-    OsmId:
-      type: object
-      properties:
-        osmId:
-          type: number
-          minimum: 1
-    ExternalId:
-      type: object
-      properties:
-        externalId:
-          type: string
-          format: uuid
     Error:
       type: object
       properties:
-        code:
-          type: string
         message:
           type: string
-    AllIds:
+    Entity:
+      type: object
       required:
         - externalId
         - osmId
-      allOf:
-        - $ref: "#/components/schemas/OsmId"
-        - $ref: "#/components/schemas/ExternalId"
+      properties:
+        externalId:
+          type: string
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        osmId:
+          type: integer
+          format: int64
+          minimum: 0
+          example: 1337
+          exclusiveMinimum: true
