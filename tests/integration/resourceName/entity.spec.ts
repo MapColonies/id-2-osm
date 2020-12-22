@@ -10,7 +10,7 @@ describe('resourceName', function () {
     await requestSender.init();
   });
   afterEach(function () {
-    container.clearInstances()
+    container.clearInstances();
   });
 
   describe('Happy Path', function () {

@@ -1,7 +1,7 @@
-import { ILogMethod } from "@map-colonies/mc-logger";
+import { ILogMethod } from '@map-colonies/mc-logger';
 
 export interface ILogger {
-  log: ILogMethod
+  log: ILogMethod;
 }
 
 export interface IConfig {
@@ -9,10 +9,9 @@ export interface IConfig {
   has: (setting: string) => boolean;
 }
 
-
 export interface SwaggerConfig {
   filePath: string;
-  basePath:string;
+  basePath: string;
   jsonPath: string;
   uiPath: string;
-};
+}

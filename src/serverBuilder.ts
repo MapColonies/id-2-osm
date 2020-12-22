@@ -39,7 +39,7 @@ export class ServerBuilder {
   }
 
   private registerMiddleware(): void {
-    this.serverInstance.use(bodyParser.urlencoded({extended: true}));
+    this.serverInstance.use(bodyParser.urlencoded({ extended: true }));
     this.serverInstance.use(this.requestLogger.getLoggerMiddleware());
     this.serverInstance.use(this.errorHandler.getErrorHandlerMiddleware());
   }

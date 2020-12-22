@@ -2,11 +2,7 @@ import { readFileSync } from 'fs';
 import { container } from 'tsyringe';
 import config from 'config';
 import { Probe } from '@map-colonies/mc-probe';
-import {
-  MCLogger,
-  ILoggerConfig,
-  IServiceConfig,
-} from '@map-colonies/mc-logger';
+import { MCLogger, ILoggerConfig, IServiceConfig } from '@map-colonies/mc-logger';
 import { Services } from './common/constants';
 
 function registerExternalValues(): void {

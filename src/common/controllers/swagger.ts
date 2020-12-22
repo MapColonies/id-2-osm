@@ -13,10 +13,7 @@ export class SwaggerController {
 
   private readonly swaggerDoc: swaggerUi.JsonObject;
 
-  public constructor(
-    @inject(Services.LOGGER) private readonly logger: ILogger,
-    @inject(Services.CONFIG) private readonly config: IConfig
-  ) {
+  public constructor(@inject(Services.LOGGER) private readonly logger: ILogger, @inject(Services.CONFIG) private readonly config: IConfig) {
     const swaggerConfig = config.get<SwaggerConfig>('swaggerConfig');
 
     this.swaggerDoc = safeLoad(readFileSync(swaggerConfig.filePath, 'utf8')) as swaggerUi.JsonObject;
@@ -27,5 +24,4 @@ export class SwaggerController {
   public serveJson(req: Request, res: Response): void {
     res.json(this.swaggerDoc);
   }
-
 }

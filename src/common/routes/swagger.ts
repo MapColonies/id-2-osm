@@ -8,7 +8,7 @@ const swaggerRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
   const controller = dependencyContainer.resolve(SwaggerController);
   const config = dependencyContainer.resolve<IConfig>(Services.CONFIG);
   const swaggerConfig = config.get<SwaggerConfig>('swaggerConfig');
-  
+
   const swaggerRouter = Router();
 
   const swaggerJsonPath = swaggerConfig.basePath + swaggerConfig.jsonPath;

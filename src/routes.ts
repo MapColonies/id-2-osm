@@ -7,7 +7,7 @@ interface Route {
   name: string;
   path: string;
   middlewares?: RequestHandler[];
-  routerFactory: FactoryFunction<Router>
+  routerFactory: FactoryFunction<Router>;
 }
 
 export enum RouteNames {
