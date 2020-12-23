@@ -43,7 +43,8 @@
     "openapi-validator-middleware": "^3.1.1",
     "reflect-metadata": "^0.1.13",
     "swagger-ui-express": "^4.1.4",
-    "tsyringe": "^4.3.0"
+    "tsyringe": "^4.3.0",
+    "typeorm": "^0.2.29"
   },
   "devDependencies": {
     "@commitlint/cli": "^9.1.1",
