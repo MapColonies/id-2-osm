@@ -17,7 +17,7 @@ export class ErrorHandler {
       next: NextFunction
     ): void => {
       this.logger.log('error', `${req.method} request to ${req.originalUrl}  has failed with error: ${err.message}`);
-      res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
     };
   }
 }
