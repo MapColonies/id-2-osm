@@ -4,8 +4,8 @@ import { registerExternalValues } from './containerConfig';
 import { ServerBuilder } from './serverBuilder';
 
 async function getApp(): Promise<Application> {
-  registerExternalValues();
-  const app = await container.resolve(ServerBuilder).build();
+  await registerExternalValues();
+  const app = container.resolve(ServerBuilder).build();
   return app;
 }
 

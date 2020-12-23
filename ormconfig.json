@@ -1,0 +1,14 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "postgres",
+  "password": "1234",
+  "database": "id-2-osm",
+  "entities": ["src/entity/models/*.ts"],
+  "migrationsTableName": "custom_migration_table",
+  "migrations": ["db/migration/*.ts"],
+  "cli": {
+      "migrationsDir": "db/migration"
+  }
+}

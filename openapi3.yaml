@@ -114,6 +114,5 @@ components:
         osmId:
           type: integer
           format: int64
-          minimum: 0
+          minimum: 1
           example: 1337
-          exclusiveMinimum: true

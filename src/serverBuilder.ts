@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { initAsync as validatorInit } from 'openapi-validator-middleware';
 import { container, inject, injectable } from 'tsyringe';
+import { middleware as OpenApiMiddleware} from 'express-openapi-validator'
 import { RequestLogger } from './common/middlewares/RequestLogger';
 import { ErrorHandler } from './common/middlewares/ErrorHandler';
 import { Services } from './common/constants';
@@ -21,9 +22,9 @@ export class ServerBuilder {
     this.serverInstance = express();
   }
 
-  public async build(): Promise<express.Application> {
+  public build(): express.Application {
     //initiate swagger validator
-    await validatorInit(this.config.get('swaggerConfig.filePath'));
+    // await validatorInit(this.config.get('swaggerConfig.filePath'), {contentTypeValidation: true});
 
     this.registerMiddleware();
     this.buildRoutes();
@@ -39,7 +40,8 @@ export class ServerBuilder {
   }
 
   private registerMiddleware(): void {
-    this.serverInstance.use(bodyParser.urlencoded({ extended: true }));
+    this.serverInstance.use(bodyParser.json());
+    this.serverInstance.use(OpenApiMiddleware({apiSpec: this.config.get('swaggerConfig.filePath'), validateRequests: true}))
     this.serverInstance.use(this.requestLogger.getLoggerMiddleware());
     this.serverInstance.use(this.errorHandler.getErrorHandlerMiddleware());
   }
