@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: external-id-2-osm
-  description: Service to retrieve mapping 
+  description: Service to retrieve mapping
   version: 0.0.1
 servers:
   - url: http://localhost:1337
@@ -15,7 +15,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Entity"
+              $ref: '#/components/schemas/Entity'
       responses:
         '201':
           description: Created

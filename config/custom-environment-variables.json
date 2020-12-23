@@ -1,0 +1,11 @@
+{
+  "swaggerConfig": {
+    "filePath": "SWAGGER_FILE_PATH"
+  },
+  "logger": {
+    "level": "LOG_LEVEL"
+  },
+  "server": {
+    "port": "SERVER_PORT"
+  }
+}
