@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { FactoryFunction } from 'tsyringe';
-import { validate } from 'openapi-validator-middleware';
 import { EntityController } from '../controllers/entityController';
 
 const entityRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {

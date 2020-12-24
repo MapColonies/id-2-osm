@@ -8,10 +8,10 @@ export interface IEntity {
 @OrmEntity()
 export class Entity implements IEntity {
   
-  @PrimaryColumn({name: 'external_id'})
+  @PrimaryColumn({name: 'external_id', length:68})
   public externalId!: string;
 
-  @Index({unique: true})
+  @Index()
   @Column({ type: 'bigint', name: 'osm_id'})
   public osmId!: number;
 }

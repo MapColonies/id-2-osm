@@ -69,6 +69,7 @@ components:
       schema:
         type: string
         minLength: 1
+        maxLength: 68
       description: the external id
       example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
   responses:
@@ -111,8 +112,11 @@ components:
         externalId:
           type: string
           example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          minLength: 1
+          maxLength: 68
         osmId:
           type: integer
           format: int64
-          minimum: 1
+          minimum: 0
           example: 1337
+          exclusiveMinimum: true
