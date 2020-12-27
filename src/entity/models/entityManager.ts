@@ -11,6 +11,11 @@ export class EntityManager {
     @inject('EntityRepository') private readonly repository: Repository<Entity>,
     @inject(Services.LOGGER) private readonly logger: ILogger
   ) {}
+
+  public async getEntity(externalId: string): Promise<Entity | undefined> {
+    return this.repository.findOne(externalId);
+  }
+
   public async createEntity(newEntity: IEntity): Promise<void> {
     this.logger.log('info', `creating new entity ${JSON.stringify(newEntity)}`);
 

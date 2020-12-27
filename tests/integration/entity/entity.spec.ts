@@ -8,7 +8,7 @@ import { createFakeEntity, createOsmId } from '../../helpers/helpers';
 import * as requestSender from './helpers/requestSender';
 import { createDbEntity } from './helpers/db';
 
-describe('POST /entity', function () {
+describe('entity', function () {
   let app: Application;
   beforeAll(async function () {
     await registerTestValues();
@@ -19,63 +19,105 @@ describe('POST /entity', function () {
     container.reset();
   });
 
-  describe('Happy Path 🙂', function () {
-    it('should return 201 status code', async function () {
-      const response = await requestSender.createEntity(app, createFakeEntity());
+  describe('POST /entity', function () {
+    describe('Happy Path 🙂', function () {
+      it('should return 201 status code', async function () {
+        const response = await requestSender.createEntity(app, createFakeEntity());
 
-      expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+      });
+    });
+
+    describe('Bad Path 😡', function () {
+      it('should return 400 status code and error message if osm id is missing', async function () {
+        const response = await requestSender.createEntity(app, { externalId: faker.random.uuid() });
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+
+        expect(response.body).toHaveProperty('message', "request.body should have required property 'osmId'");
+      });
+
+      it('should return 400 status code and error message if osm id is not valid', async function () {
+        const response = await requestSender.createEntity(app, { externalId: faker.random.uuid(), osmId: faker.lorem.word() });
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+
+        expect(response.body).toHaveProperty('message', 'request.body.osmId should be integer');
+      });
+
+      it('should return 400 status code and error message if external id is missing', async function () {
+        const response = await requestSender.createEntity(app, { osmId: createOsmId() });
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+
+        expect(response.body).toHaveProperty('message', "request.body should have required property 'externalId'");
+      });
+
+      it('should return 400 status code and error message if external id is not valid', async function () {
+        const response = await requestSender.createEntity(app, { externalId: {}, osmId: createOsmId() });
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+
+        expect(response.body).toHaveProperty('message', 'request.body.externalId should be string');
+      });
+    });
+
+    describe('Sad Path 😥', function () {
+      it('should return 422 status code if an entity with the same id exists', async function () {
+        const entity = await createDbEntity();
+        const response = await requestSender.createEntity(app, entity);
+
+        expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
+        expect(response.body).toHaveProperty('message', `externalId=${entity.externalId} already exists`);
+      });
+
+      it('should return 500 status code if an db exception happens', async function () {
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+
+        const response = await requestSender.createEntity(mockedApp, createFakeEntity());
+
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
+      });
     });
   });
-  
-  describe('Bad Path 😡', function () {
-    it('should return 400 status code and error message if osm id is missing', async function () {
-      const response = await requestSender.createEntity(app, { externalId: faker.random.uuid() });
 
-      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+  describe('GET /entity', function () {
+    describe('Happy Path 🙂', function () {
+      it('should return 200 status code and the entity', async function () {
+        const entity = await createDbEntity();
+        const response = await requestSender.getEntity(app, entity.externalId);
 
-      expect(response.body).toHaveProperty('message', "request.body should have required property 'osmId'");
+        expect(response.status).toBe(httpStatusCodes.OK);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        expect(response.body).toStrictEqual(entity);
+      });
     });
+    describe('Bad Path 😡', function () {
+      it('should return 400 status code and error message external id is too long', async function () {
+        const response = await requestSender.getEntity(app, faker.random.alphaNumeric(69));
 
-    it('should return 400 status code and error message if osm id is not valid', async function () {
-      const response = await requestSender.createEntity(app, { externalId: faker.random.uuid(), osmId: faker.lorem.word() });
-
-      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-
-      expect(response.body).toHaveProperty('message', 'request.body.osmId should be integer');
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', "request.params.externalId should NOT be longer than 68 characters");
+      });
     });
+    describe('Sad Path 😥', function () {
+      it('should return 404 if an entity with the requested id does not exist', async function () {
+        const response = await requestSender.getEntity(app, faker.random.alphaNumeric(20));
 
-    it('should return 400 status code and error message if external id is missing', async function () {
-      const response = await requestSender.createEntity(app, { osmId: createOsmId() });
+        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+        expect(response.body).toHaveProperty('message', `Entity with given id was not found.`);
+      });
 
-      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+      it('should return 500 status code if an db exception happens', async function () {
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+        const response = await requestSender.getEntity(mockedApp, createFakeEntity().externalId);
 
-      expect(response.body).toHaveProperty('message', "request.body should have required property 'externalId'");
-    });
-
-    it('should return 400 status code and error message if external id is not valid', async function () {
-      const response = await requestSender.createEntity(app, { externalId: {}, osmId: createOsmId() });
-
-      expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-
-      expect(response.body).toHaveProperty('message', 'request.body.externalId should be string');
-    });
-  });
-  describe('Sad Path 😥', function () {
-    it('should return 422 status code if an entity with the same id exists', async function () {
-      const entity = await createDbEntity();
-      const response = await requestSender.createEntity(app, entity);
-
-      expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
-      expect(response.body).toHaveProperty('message', `externalId=${entity.externalId} already exists`);
-    });
-
-    it('should return 500 status code if an db exception happens', async function () {
-      const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-      const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
-      const response = await requestSender.createEntity(mockedApp, createFakeEntity());
-
-      expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-      expect(response.body).toHaveProperty('message', 'failed');
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
+      });
     });
   });
 });
