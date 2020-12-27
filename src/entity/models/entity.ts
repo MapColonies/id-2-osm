@@ -1,4 +1,4 @@
-import {Entity as OrmEntity, Index,  PrimaryColumn, Column} from "typeorm"
+import { Entity as OrmEntity, Index, PrimaryColumn, Column } from 'typeorm';
 
 export interface IEntity {
   externalId: string;

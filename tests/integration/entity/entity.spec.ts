@@ -26,7 +26,7 @@ describe('POST /entity', function () {
       expect(response.status).toBe(httpStatusCodes.CREATED);
     });
   });
-
+  
   describe('Bad Path 😡', function () {
     it('should return 400 status code and error message if osm id is missing', async function () {
       const response = await requestSender.createEntity(app, { externalId: faker.random.uuid() });
