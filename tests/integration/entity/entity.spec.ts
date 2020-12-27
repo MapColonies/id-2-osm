@@ -18,7 +18,6 @@ describe('entity', function () {
   afterAll(function () {
     container.reset();
   });
-
   describe('POST /entity', function () {
     describe('Happy Path 🙂', function () {
       it('should return 201 status code', async function () {
