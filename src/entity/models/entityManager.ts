@@ -17,15 +17,15 @@ export class EntityManager {
     const dbEntities = await this.repository.find({ where: [{ externalId: newEntity.externalId }, { osmId: newEntity.osmId }] });
 
     if (dbEntities.length > 0) {
-      let message: string
-      if (dbEntities[0].externalId === newEntity.externalId){
-        message = `externalId=${newEntity.externalId} already exists`
+      let message: string;
+      if (dbEntities[0].externalId === newEntity.externalId) {
+        message = `externalId=${newEntity.externalId} already exists`;
       } else {
         message = `osmId=${newEntity.osmId} already exists`;
       }
-      throw new IdAlreadyExistsError(message)
+      throw new IdAlreadyExistsError(message);
     }
-    
+
     await this.repository.insert(newEntity);
   }
 }

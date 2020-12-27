@@ -1,6 +1,6 @@
 export class IdAlreadyExistsError extends Error {
   public constructor(message: string) {
-    super(message)
+    super(message);
     Object.setPrototypeOf(this, IdAlreadyExistsError.prototype);
   }
 }

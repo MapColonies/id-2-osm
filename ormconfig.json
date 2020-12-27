@@ -9,6 +9,6 @@
   "migrationsTableName": "custom_migration_table",
   "migrations": ["db/migration/*.ts"],
   "cli": {
-      "migrationsDir": "db/migration"
+    "migrationsDir": "db/migration"
   }
 }

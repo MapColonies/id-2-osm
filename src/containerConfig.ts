@@ -6,15 +6,16 @@ import { Probe } from '@map-colonies/mc-probe';
 import { MCLogger, ILoggerConfig, IServiceConfig } from '@map-colonies/mc-logger';
 import { Services } from './common/constants';
 import { Entity } from './entity/models/entity';
+import { promiseTimeout } from './common/utils/promiseTimeout';
+
+const dbTimeout = 5000;
 
 const healthCheck = (connection: Connection): (() => Promise<void>) => {
   return async (): Promise<void> => {
-    try {
-      await connection.query('SELECT 1')
-    } catch {
-      throw new Error("db not responding :(");
-    }
-    return Promise.resolve();
+    const check = connection.query('SELECT 1').then(() => {
+      return;
+    });
+    return promiseTimeout<void>(dbTimeout, check);
   };
 };
 
