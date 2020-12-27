@@ -25,23 +25,6 @@ const beforeShutdown = (connection: Connection): (() => Promise<void>) => {
   };
 };
 
-const healthCheck = (connection: Connection): (() => Promise<void>) => {
-  return async (): Promise<void> => {
-    try {
-      await connection.query('SELECT 1')
-    } catch {
-      throw new Error("db not responding :(");
-    }
-    return Promise.resolve();
-  };
-};
-
-const beforeShutdown = (connection: Connection): (() => Promise<void>) => {
-  return async (): Promise<void> => {
-    await connection.close();
-  };
-};
-
 async function registerExternalValues(): Promise<void> {
   const loggerConfig = config.get<ILoggerConfig>('logger');
   const packageContent = readFileSync('./package.json', 'utf8');
