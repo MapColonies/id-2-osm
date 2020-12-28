@@ -1,9 +1,10 @@
 import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Services } from '../../common/constants';
+import { NotFoundError } from '../../common/errors';
 import { ILogger } from '../../common/interfaces';
 import { Entity, IEntity } from './entity';
-import { IdAlreadyExistsError } from './errors';
+import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 
 @injectable()
 export class EntityManager {
@@ -32,5 +33,15 @@ export class EntityManager {
     }
 
     await this.repository.insert(newEntity);
+  }
+
+  public async deleteEntity(externalId: string): Promise<void> {
+    const entity = await this.repository.findOne(externalId);
+
+    if (!entity) {
+      throw new EntityNotFoundError("couldn't find an entity with the given id to delete");
+    }
+
+    await this.repository.delete(externalId);
   }
 }

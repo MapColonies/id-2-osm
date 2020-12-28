@@ -22,3 +22,7 @@ export async function createEntity(app: Application, entity: { osmId?: unknown; 
 export async function getEntity(app: Application, externalId: string): Promise<supertest.Response> {
   return supertest.agent(app).get(`/entity/${externalId}`).set('Content-Type', 'application/json');
 }
+
+export async function deleteEntity(app: Application, externalId: string): Promise<supertest.Response> {
+  return supertest.agent(app).delete(`/entity/${externalId}`).set('Content-Type', 'application/json');
+}

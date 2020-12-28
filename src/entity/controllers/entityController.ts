@@ -7,10 +7,10 @@ import { ILogger } from '../../common/interfaces';
 import { Entity } from '../models/entity';
 
 import { EntityManager } from '../models/entityManager';
-import { IdAlreadyExistsError } from '../models/errors';
+import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 
 type GetEntityHandler = RequestHandler<{ externalId: string }, Entity>;
-
+type DeleteEntityHandler = RequestHandler<{ externalId: string }>;
 @injectable()
 export class EntityController {
   public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(Services.LOGGER) private readonly logger: ILogger) {}
@@ -43,5 +43,20 @@ export class EntityController {
       return next(error);
     }
     return res.sendStatus(httpStatus.CREATED);
+  };
+
+  public delete: DeleteEntityHandler = async (req: Request, res: Response, next) => {
+    const { externalId } = req.params;
+
+    try {
+      await this.manager.deleteEntity(externalId);
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        (error as ErrorWithStatus).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+
+    res.sendStatus(httpStatus.NO_CONTENT);
   };
 }
