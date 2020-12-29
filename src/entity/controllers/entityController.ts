@@ -2,7 +2,7 @@ import { Request, RequestHandler, Response } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Services } from '../../common/constants';
-import { ErrorWithStatus } from '../../common/errors';
+import { HttpError } from '../../common/errors';
 import { ILogger } from '../../common/interfaces';
 
 import { EntityManager } from '../models/entityManager';
@@ -17,7 +17,7 @@ export class EntityController {
       await this.manager.createEntity(req.body);
     } catch (error) {
       if (error instanceof IdAlreadyExistsError) {
-        (error as ErrorWithStatus).status = httpStatus.UNPROCESSABLE_ENTITY;
+        (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
       }
       return next(error);
     }

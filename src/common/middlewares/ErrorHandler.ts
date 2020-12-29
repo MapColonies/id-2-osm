@@ -3,7 +3,7 @@ import { inject, injectable } from 'tsyringe';
 import { StatusCodes } from 'http-status-codes';
 import { Services } from '../constants';
 import { ILogger } from '../interfaces';
-import { ErrorWithStatus } from '../errors';
+import { HttpError } from '../errors';
 
 @injectable()
 export class ErrorHandler {
@@ -11,7 +11,7 @@ export class ErrorHandler {
 
   public getErrorHandlerMiddleware(): ErrorRequestHandler {
     return (
-      err: ErrorWithStatus,
+      err: HttpError,
       req: Request,
       res: Response,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

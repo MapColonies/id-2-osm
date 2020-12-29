@@ -14,11 +14,11 @@ export class EntityManager {
   public async createEntity(newEntity: IEntity): Promise<void> {
     this.logger.log('info', `creating new entity ${JSON.stringify(newEntity)}`);
 
-    const dbEntities = await this.repository.find({ where: [{ externalId: newEntity.externalId }, { osmId: newEntity.osmId }] });
+    const dbEntity = await this.repository.findOne({ where: [{ externalId: newEntity.externalId }, { osmId: newEntity.osmId }] });
 
-    if (dbEntities.length > 0) {
+    if (dbEntity) {
       let message: string;
-      if (dbEntities[0].externalId === newEntity.externalId) {
+      if (dbEntity.externalId === newEntity.externalId) {
         message = `externalId=${newEntity.externalId} already exists`;
       } else {
         message = `osmId=${newEntity.osmId} already exists`;

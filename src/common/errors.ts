@@ -1,3 +1,3 @@
-export interface ErrorWithStatus extends Error {
+export interface HttpError extends Error {
   status?: number;
 }

@@ -6,7 +6,7 @@ const entityRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
   const router = Router();
   const controller = dependencyContainer.resolve(EntityController);
 
-  router.post('/', controller.post.bind(controller));
+  router.post('/', controller.post);
 
   return router;
 };
