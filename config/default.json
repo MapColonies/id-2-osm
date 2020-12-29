@@ -1,5 +1,5 @@
 {
-  "swaggerConfig": {
+  "openapiConfig": {
     "filePath": "./openapi3.yaml",
     "basePath": "/docs",
     "jsonPath": "/api.json",
@@ -10,5 +10,13 @@
   },
   "server": {
     "port": "8080"
+  },
+  "db": {
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "postgres",
+    "password": "1234",
+    "database": "id-2-osm"
   }
 }

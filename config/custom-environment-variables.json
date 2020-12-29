@@ -1,11 +1,22 @@
 {
-  "swaggerConfig": {
-    "filePath": "SWAGGER_FILE_PATH"
+  "openapiConfig": {
+    "filePath": "OPENAPI_FILE_PATH"
   },
   "logger": {
     "level": "LOG_LEVEL"
   },
   "server": {
     "port": "SERVER_PORT"
+  },
+  "db": {
+    "type": "DB_TYPE",
+    "host": "DB_HOST",
+    "port": {
+      "__name": "DB_PORT",
+      "__format": "number"
+    },
+    "username": "DB_USERNAME",
+    "password": "DB_PASSWORD",
+    "database": "DB_NAME"
   }
 }

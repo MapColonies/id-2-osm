@@ -3,6 +3,7 @@ import { inject, injectable } from 'tsyringe';
 import { StatusCodes } from 'http-status-codes';
 import { Services } from '../constants';
 import { ILogger } from '../interfaces';
+import { HttpError } from '../errors';
 
 @injectable()
 export class ErrorHandler {
@@ -10,14 +11,14 @@ export class ErrorHandler {
 
   public getErrorHandlerMiddleware(): ErrorRequestHandler {
     return (
-      err: Error,
+      err: HttpError,
       req: Request,
       res: Response,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       next: NextFunction
     ): void => {
       this.logger.log('error', `${req.method} request to ${req.originalUrl}  has failed with error: ${err.message}`);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
+      res.status(err.status ?? StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
     };
   }
 }
