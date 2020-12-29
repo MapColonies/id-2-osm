@@ -1,6 +1,6 @@
 {
-  "swaggerConfig": {
-    "filePath": "SWAGGER_FILE_PATH"
+  "openapiConfig": {
+    "filePath": "OPENAPI_FILE_PATH"
   },
   "logger": {
     "level": "LOG_LEVEL"

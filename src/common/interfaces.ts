@@ -9,7 +9,7 @@ export interface IConfig {
   has: (setting: string) => boolean;
 }
 
-export interface SwaggerConfig {
+export interface OpenApiConfig {
   filePath: string;
   basePath: string;
   jsonPath: string;
