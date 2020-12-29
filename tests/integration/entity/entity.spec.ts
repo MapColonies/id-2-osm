@@ -72,7 +72,12 @@ describe('entity', function () {
       });
 
       it('should return 500 status code if an db exception happens', async function () {
-        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        // const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const findMock = jest.fn().mockImplementation(() => {
+          console.log('KAW KAW')
+          throw new QueryFailedError('select *', [], new Error('failed'));
+        });
+
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
         const response = await requestSender.createEntity(mockedApp, createFakeEntity());
@@ -91,32 +96,34 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.OK);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        expect(response.body).toStrictEqual(entity);
-      });
-    });
-    describe('Bad Path 😡', function () {
-      it('should return 400 status code and error message external id is too long', async function () {
-        const response = await requestSender.getEntity(app, faker.random.alphaNumeric(69));
-
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', "request.params.externalId should NOT be longer than 68 characters");
-      });
-    });
-    describe('Sad Path 😥', function () {
-      it('should return 404 if an entity with the requested id does not exist', async function () {
-        const response = await requestSender.getEntity(app, faker.random.alphaNumeric(20));
-
-        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', `Entity with given id was not found.`);
+        expect(response.body).toMatchObject(entity);
       });
 
-      it('should return 500 status code if an db exception happens', async function () {
-        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
-        const response = await requestSender.getEntity(mockedApp, createFakeEntity().externalId);
+      describe('Bad Path 😡', function () {
+        it('should return 400 status code and error message external id is too long', async function () {
+          const response = await requestSender.getEntity(app, faker.random.alphaNumeric(69));
 
-        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-        expect(response.body).toHaveProperty('message', 'failed');
+          expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+          expect(response.body).toHaveProperty('message', 'request.params.externalId should NOT be longer than 68 characters');
+        });
+      });
+
+      describe('Sad Path 😥', function () {
+        it('should return 404 if an entity with the requested id does not exist', async function () {
+          const response = await requestSender.getEntity(app, faker.random.alphaNumeric(20));
+
+          expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+          expect(response.body).toHaveProperty('message', `Entity with given id was not found.`);
+        });
+
+        it('should return 500 status code if an db exception happens', async function () {
+          const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+          const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+          const response = await requestSender.getEntity(mockedApp, createFakeEntity().externalId);
+
+          expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+          expect(response.body).toHaveProperty('message', 'failed');
+        });
       });
     });
   });
