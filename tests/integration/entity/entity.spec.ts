@@ -3,9 +3,10 @@ import { container } from 'tsyringe';
 import faker from 'faker';
 import { Application } from 'express';
 import { QueryFailedError } from 'typeorm';
-import { createFakeEntity } from '../../helpers';
-import { exampleEntity, registerTestValues } from '../testContainerConfig';
+import { registerTestValues } from '../testContainerConfig';
+import { createFakeEntity, createOsmId } from '../../helpers/helpers';
 import * as requestSender from './helpers/requestSender';
+import { createDbEntity } from './helpers/db';
 
 describe('POST /entity', function () {
   let app: Application;
@@ -25,6 +26,7 @@ describe('POST /entity', function () {
       expect(response.status).toBe(httpStatusCodes.CREATED);
     });
   });
+
   describe('Bad Path 😡', function () {
     it('should return 400 status code and error message if osm id is missing', async function () {
       const response = await requestSender.createEntity(app, { externalId: faker.random.uuid() });
@@ -43,7 +45,7 @@ describe('POST /entity', function () {
     });
 
     it('should return 400 status code and error message if external id is missing', async function () {
-      const response = await requestSender.createEntity(app, { osmId: faker.random.number() });
+      const response = await requestSender.createEntity(app, { osmId: createOsmId() });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
@@ -51,7 +53,7 @@ describe('POST /entity', function () {
     });
 
     it('should return 400 status code and error message if external id is not valid', async function () {
-      const response = await requestSender.createEntity(app, { externalId: {}, osmId: faker.random.number() });
+      const response = await requestSender.createEntity(app, { externalId: {}, osmId: createOsmId() });
 
       expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
@@ -60,16 +62,17 @@ describe('POST /entity', function () {
   });
   describe('Sad Path 😥', function () {
     it('should return 422 status code if an entity with the same id exists', async function () {
-      const response = await requestSender.createEntity(app, exampleEntity);
+      const entity = await createDbEntity();
+      const response = await requestSender.createEntity(app, entity);
 
       expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
-      expect(response.body).toHaveProperty('message', `externalId=${exampleEntity.externalId} already exists`);
+      expect(response.body).toHaveProperty('message', `externalId=${entity.externalId} already exists`);
     });
 
     it('should return 500 status code if an db exception happens', async function () {
       const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-      const mockedApp = requestSender.getMockedRepoApp({ find: findMock });
-      const response = await requestSender.createEntity(mockedApp, exampleEntity);
+      const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+      const response = await requestSender.createEntity(mockedApp, createFakeEntity());
 
       expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
       expect(response.body).toHaveProperty('message', 'failed');

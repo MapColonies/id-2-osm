@@ -2,24 +2,28 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { Entity } from '../../../../src/entity/models/entity';
 import { EntityManager } from '../../../../src/entity/models/entityManager';
 import { IdAlreadyExistsError } from '../../../../src/entity/models/errors';
-import { createFakeEntity } from '../../../helpers';
+import { createFakeEntity } from '../../../helpers/helpers';
 
 let entityManager: EntityManager;
 
 describe('EntityManager', () => {
-  const insert = jest.fn();
-  const find = jest.fn();
+  let insert: jest.Mock;
+  let findOne: jest.Mock;
+
   beforeEach(() => {
-    const repository = ({ insert, find } as unknown) as Repository<Entity>;
+    insert = jest.fn();
+    findOne = jest.fn();
+    const repository = ({ insert, findOne } as unknown) as Repository<Entity>;
     entityManager = new EntityManager(repository, { log: jest.fn() });
   });
+
   afterEach(() => {
-    insert.mockClear();
-    find.mockClear();
+    jest.clearAllMocks();
   });
+
   describe('#createEntity', () => {
     it("resolves without errors if id's are not used", async () => {
-      find.mockResolvedValue([]);
+      findOne.mockResolvedValue(undefined);
       insert.mockResolvedValue(undefined);
       const entity = createFakeEntity();
 
@@ -29,7 +33,7 @@ describe('EntityManager', () => {
     });
 
     it('rejects on DB error', async () => {
-      find.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
+      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
       const entity = createFakeEntity();
 
       const createPromise = entityManager.createEntity(entity);
@@ -39,7 +43,7 @@ describe('EntityManager', () => {
 
     it('rejects if any id already exists', async () => {
       const entity = createFakeEntity();
-      find.mockResolvedValue([entity]);
+      findOne.mockResolvedValue(entity);
       insert.mockResolvedValue(undefined);
 
       const createPromise = entityManager.createEntity(entity);
