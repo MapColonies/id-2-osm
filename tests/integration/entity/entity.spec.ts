@@ -72,11 +72,7 @@ describe('entity', function () {
       });
 
       it('should return 500 status code if an db exception happens', async function () {
-        // const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const findMock = jest.fn().mockImplementation(() => {
-          console.log('KAW KAW')
-          throw new QueryFailedError('select *', [], new Error('failed'));
-        });
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
 
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
