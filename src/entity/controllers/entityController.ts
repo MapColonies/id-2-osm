@@ -10,7 +10,7 @@ import { EntityManager } from '../models/entityManager';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 
 interface EntityParams {
-  externalId: string
+  externalId: string;
 }
 
 type GetEntityHandler = RequestHandler<EntityParams, Entity>;

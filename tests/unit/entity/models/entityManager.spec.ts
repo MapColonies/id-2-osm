@@ -103,11 +103,11 @@ describe('EntityManager', () => {
     it('should resolve if the entity is deleted', async () => {
       const entity = createFakeEntity();
       findOne.mockResolvedValue(entity);
-      deleteEntity.mockResolvedValue(undefined)
+      deleteEntity.mockResolvedValue(undefined);
 
       const deletePromise = entityManager.deleteEntity(entity.externalId);
 
-      await expect(deletePromise).resolves.not.toThrow()
+      await expect(deletePromise).resolves.not.toThrow();
     });
 
     it('rejects on DB error', async () => {
@@ -125,7 +125,7 @@ describe('EntityManager', () => {
 
       const deletePromise = entityManager.deleteEntity(entity.externalId);
 
-      await expect(deletePromise).rejects.toThrow("couldn't find an entity with the given id to delete")
+      await expect(deletePromise).rejects.toThrow("couldn't find an entity with the given id to delete");
     });
   });
 });

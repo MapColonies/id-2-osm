@@ -11,4 +11,3 @@ export class EntityNotFoundError extends Error {
     Object.setPrototypeOf(this, EntityNotFoundError.prototype);
   }
 }
-
