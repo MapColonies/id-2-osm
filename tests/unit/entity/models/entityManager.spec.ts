@@ -51,4 +51,41 @@ describe('EntityManager', () => {
       await expect(createPromise).rejects.toThrow(IdAlreadyExistsError);
     });
   });
+
+  describe('#getEntity', () => {
+    const findOne = jest.fn();
+    beforeEach(() => {
+      const repository = ({ findOne } as unknown) as Repository<Entity>;
+      entityManager = new EntityManager(repository, { log: jest.fn() });
+    });
+    afterEach(() => {
+      findOne.mockClear();
+    });
+    it('returns the entity', async () => {
+      const entity = createFakeEntity();
+      findOne.mockResolvedValue(entity);
+
+      const getPromise = entityManager.getEntity(entity.externalId);
+
+      await expect(getPromise).resolves.toStrictEqual(entity);
+    });
+
+    it('rejects on DB error', async () => {
+      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
+      const entity = createFakeEntity();
+
+      const getPromise = entityManager.getEntity(entity.externalId);
+
+      await expect(getPromise).rejects.toThrow(QueryFailedError);
+    });
+
+    it('returns undefined if id not found', async () => {
+      const entity = createFakeEntity();
+      findOne.mockReturnValue(undefined);
+
+      const getPromise = entityManager.getEntity(entity.externalId);
+
+      await expect(getPromise).resolves.toBeUndefined();
+    });
+  });
 });
