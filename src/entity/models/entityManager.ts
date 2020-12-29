@@ -1,7 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Services } from '../../common/constants';
-import { NotFoundError } from '../../common/errors';
 import { ILogger } from '../../common/interfaces';
 import { Entity, IEntity } from './entity';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';

@@ -9,13 +9,17 @@ import { Entity } from '../models/entity';
 import { EntityManager } from '../models/entityManager';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 
-type GetEntityHandler = RequestHandler<{ externalId: string }, Entity>;
-type DeleteEntityHandler = RequestHandler<{ externalId: string }>;
+interface EntityParams {
+  externalId: string
+}
+
+type GetEntityHandler = RequestHandler<EntityParams, Entity>;
+type DeleteEntityHandler = RequestHandler<EntityParams>;
 @injectable()
 export class EntityController {
   public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(Services.LOGGER) private readonly logger: ILogger) {}
 
-  public get: GetEntityHandler = async (req: Request, res: Response, next) => {
+  public get: GetEntityHandler = async (req, res, next) => {
     const { externalId } = req.params;
 
     let entity: Entity | undefined;
@@ -33,7 +37,7 @@ export class EntityController {
     return res.status(httpStatus.OK).json(entity);
   };
 
-  public post: RequestHandler = async (req: Request, res: Response, next) => {
+  public post: RequestHandler = async (req, res, next) => {
     try {
       await this.manager.createEntity(req.body);
     } catch (error) {
@@ -45,14 +49,14 @@ export class EntityController {
     return res.sendStatus(httpStatus.CREATED);
   };
 
-  public delete: DeleteEntityHandler = async (req: Request, res: Response, next) => {
+  public delete: DeleteEntityHandler = async (req, res, next) => {
     const { externalId } = req.params;
 
     try {
       await this.manager.deleteEntity(externalId);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
-        (error as ErrorWithStatus).status = httpStatus.NOT_FOUND;
+        (error as HttpError).status = httpStatus.NOT_FOUND;
       }
       return next(error);
     }

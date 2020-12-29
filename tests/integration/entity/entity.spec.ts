@@ -126,7 +126,8 @@ describe('entity', function () {
   describe('DELETE /entity', function () {
     describe('Happy Path 🙂', function () {
       it('should return 204 status code', async function () {
-        const response = await requestSender.deleteEntity(app, entityToDelete.externalId);
+        const entity = await createDbEntity();
+        const response = await requestSender.deleteEntity(app, entity.externalId);
 
         expect(response.status).toBe(httpStatusCodes.NO_CONTENT);
       });
@@ -150,7 +151,7 @@ describe('entity', function () {
       it('should return 500 status code if an db exception happens', async function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
-        const response = await requestSender.deleteEntity(mockedApp, exampleEntity.externalId);
+        const response = await requestSender.deleteEntity(mockedApp, createFakeEntity().externalId);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');

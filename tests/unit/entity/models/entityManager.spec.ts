@@ -22,16 +22,6 @@ describe('EntityManager', () => {
   });
 
   describe('#createEntity', () => {
-    const insert = jest.fn();
-    const find = jest.fn();
-    beforeEach(() => {
-      const repository = ({ insert, find } as unknown) as Repository<Entity>;
-      entityManager = new EntityManager(repository, { log: jest.fn() });
-    });
-    afterEach(() => {
-      insert.mockClear();
-      find.mockClear();
-    });
     it("resolves without errors if id's are not used", async () => {
       findOne.mockResolvedValue(undefined);
       insert.mockResolvedValue(undefined);
