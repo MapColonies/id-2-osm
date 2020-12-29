@@ -88,4 +88,44 @@ describe('EntityManager', () => {
       await expect(getPromise).resolves.toBeUndefined();
     });
   });
+
+  describe('#deleteEntity', () => {
+    const findOne = jest.fn();
+    const deleteEntity = jest.fn();
+    beforeEach(() => {
+      const repository = ({ findOne, delete: deleteEntity } as unknown) as Repository<Entity>;
+      entityManager = new EntityManager(repository, { log: jest.fn() });
+    });
+    afterEach(() => {
+      findOne.mockClear();
+      deleteEntity.mockClear();
+    });
+    it('should resolve if the entity is deleted', async () => {
+      const entity = createFakeEntity();
+      findOne.mockResolvedValue(entity);
+      deleteEntity.mockResolvedValue(undefined);
+
+      const deletePromise = entityManager.deleteEntity(entity.externalId);
+
+      await expect(deletePromise).resolves.not.toThrow();
+    });
+
+    it('rejects on DB error', async () => {
+      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
+      const entity = createFakeEntity();
+
+      const deletePromise = entityManager.deleteEntity(entity.externalId);
+
+      await expect(deletePromise).rejects.toThrow(QueryFailedError);
+    });
+
+    it('should reject with error if entitiy does not exist', async () => {
+      const entity = createFakeEntity();
+      findOne.mockReturnValue(undefined);
+
+      const deletePromise = entityManager.deleteEntity(entity.externalId);
+
+      await expect(deletePromise).rejects.toThrow("couldn't find an entity with the given id to delete");
+    });
+  });
 });

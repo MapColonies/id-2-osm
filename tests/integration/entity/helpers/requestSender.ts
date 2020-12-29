@@ -13,13 +13,6 @@ export function getMockedRepoApp(repo: unknown): Application {
   container.register('EntityRepository', { useValue: repo });
   const builder = container.resolve<ServerBuilder>(ServerBuilder);
   return builder.build();
-  // const child = container.createChildContainer();
-  // child.register('EntityRepository', { useValue: repo });
-  // child.registerInstance('EntityRepository', repo)
-  // child.reset();
-  // container.reset();
-  // const builder = child.resolve<ServerBuilder>(ServerBuilder);
-  // return builder.build();
 }
 
 export async function createEntity(app: Application, entity: { osmId?: unknown; externalId?: unknown }): Promise<supertest.Response> {
@@ -28,4 +21,8 @@ export async function createEntity(app: Application, entity: { osmId?: unknown; 
 
 export async function getEntity(app: Application, externalId: string): Promise<supertest.Response> {
   return supertest.agent(app).get(`/entity/${externalId}`).set('Content-Type', 'application/json');
+}
+
+export async function deleteEntity(app: Application, externalId: string): Promise<supertest.Response> {
+  return supertest.agent(app).delete(`/entity/${externalId}`).set('Content-Type', 'application/json');
 }

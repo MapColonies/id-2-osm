@@ -18,7 +18,6 @@ describe('entity', function () {
   afterAll(function () {
     container.reset();
   });
-
   describe('POST /entity', function () {
     describe('Happy Path 🙂', function () {
       it('should return 201 status code', async function () {
@@ -120,6 +119,42 @@ describe('entity', function () {
           expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
           expect(response.body).toHaveProperty('message', 'failed');
         });
+      });
+    });
+  });
+
+  describe('DELETE /entity', function () {
+    describe('Happy Path 🙂', function () {
+      it('should return 204 status code', async function () {
+        const entity = await createDbEntity();
+        const response = await requestSender.deleteEntity(app, entity.externalId);
+
+        expect(response.status).toBe(httpStatusCodes.NO_CONTENT);
+      });
+    });
+    describe('Bad Path 😡', function () {
+      it('should return 400 status code and error message external id is too long', async function () {
+        const response = await requestSender.deleteEntity(app, faker.random.alphaNumeric(69));
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', 'request.params.externalId should NOT be longer than 68 characters');
+      });
+    });
+    describe('Sad Path 😥', function () {
+      it('should return 404 if an entity with the requested id does not exist', async function () {
+        const response = await requestSender.deleteEntity(app, faker.random.alphaNumeric(20));
+
+        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+        expect(response.body).toHaveProperty('message', "couldn't find an entity with the given id to delete");
+      });
+
+      it('should return 500 status code if an db exception happens', async function () {
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+        const response = await requestSender.deleteEntity(mockedApp, createFakeEntity().externalId);
+
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
       });
     });
   });
