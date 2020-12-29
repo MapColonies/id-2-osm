@@ -15,7 +15,7 @@ type GetEntityHandler = RequestHandler<{ externalId: string }, Entity>;
 export class EntityController {
   public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(Services.LOGGER) private readonly logger: ILogger) {}
 
-  public get: GetEntityHandler = async (req, res, next) => {
+  public get: GetEntityHandler = async (req: Request, res: Response, next) => {
     const { externalId } = req.params;
 
     let entity: Entity | undefined;
