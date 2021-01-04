@@ -9,7 +9,10 @@ module.exports = {
   globalTeardown: '<rootDir>/tests/configurations/integration/jest.teardown.js',
   reporters: [
     'default',
-    ['jest-html-reporters', { multipleReportsUnitePath: './reports', pageTitle: 'integration', publicPath: './reports', filename: 'integration.html' }],
+    [
+      'jest-html-reporters',
+      { multipleReportsUnitePath: './reports', pageTitle: 'integration', publicPath: './reports', filename: 'integration.html' },
+    ],
   ],
   collectCoverage: true,
   moduleDirectories: ['node_modules', 'src'],
