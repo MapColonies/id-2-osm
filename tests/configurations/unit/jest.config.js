@@ -6,6 +6,10 @@ module.exports = {
   coverageReporters: ['text', 'html'],
   rootDir: '../../../.',
   setupFiles: ['<rootDir>/tests/configurations/jest.setup.js'],
+  reporters: [
+    'default',
+    ['jest-html-reporters', { multipleReportsUnitePath: './reports', pageTitle: 'unit', publicPath: './reports', filename: 'unit.html' }],
+  ],
   preset: 'ts-jest',
   testEnvironment: 'node',
 };
