@@ -34,7 +34,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref:  "#/components/schemas/Entities"
+              $ref: '#/components/schemas/Entities'
       responses:
         '201':
           description: Created
@@ -142,5 +142,4 @@ components:
     Entities:
       type: array
       items:
-        $ref:  "#/components/schemas/Entity"
-        
+        $ref: '#/components/schemas/Entity'
