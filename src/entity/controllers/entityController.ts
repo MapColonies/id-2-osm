@@ -49,6 +49,18 @@ export class EntityController {
     return res.sendStatus(httpStatus.CREATED);
   };
 
+  public postMany: RequestHandler = async (req, res, next) => {
+    try {
+      await this.manager.createEntities(req.body);
+    } catch (error) {
+      if (error instanceof IdAlreadyExistsError) {
+        (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
+      }
+      return next(error);
+    }
+    return res.sendStatus(httpStatus.CREATED);
+  };
+
   public delete: DeleteEntityHandler = async (req, res, next) => {
     const { externalId } = req.params;
 

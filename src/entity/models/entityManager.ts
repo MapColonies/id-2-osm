@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';
 import { Entity, IEntity } from './entity';
@@ -32,6 +32,26 @@ export class EntityManager {
     }
 
     await this.repository.insert(newEntity);
+  }
+
+  public async createEntities(newEntities: IEntity[]): Promise<void> {
+    this.logger.log('info', `creating bulk entities`);
+
+    const dbEntity = await this.repository.findOne({
+      where: [
+        {
+          externalId: In(newEntities.map((entity) => entity.externalId)),
+        },
+        { osmId: In(newEntities.map((entity) => entity.osmId)) },
+      ],
+    });
+
+    if (dbEntity) {
+      const message = `an entity with the following ids: ${JSON.stringify(dbEntity)} already exists`;
+      throw new IdAlreadyExistsError(message);
+    }
+
+    await this.repository.insert(newEntities);
   }
 
   public async deleteEntity(externalId: string): Promise<void> {
