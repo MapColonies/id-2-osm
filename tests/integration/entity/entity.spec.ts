@@ -83,7 +83,7 @@ describe('entity', function () {
     });
   });
 
-  describe('POST /entities', function () {
+  describe('POST /entity/bulk', function () {
     describe('Happy Path 🙂', function () {
       it('should return 201 status code', async function () {
         const response = await requestSender.createEntities(app, [createFakeEntity()]);
