@@ -25,6 +25,25 @@ paths:
           $ref: '#/components/responses/UnprocessableEntity'
         '5XX':
           $ref: '#/components/responses/UnexpectedError'
+  '/entity/bulk':
+    post:
+      summary: Add multiple entities in a bulk operation
+      tags:
+        - entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entities'
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
   '/entity/{externalId}':
     get:
       summary: Get the entity by external id
@@ -120,3 +139,7 @@ components:
           minimum: 0
           example: 1337
           exclusiveMinimum: true
+    Entities:
+      type: array
+      items:
+        $ref: '#/components/schemas/Entity'

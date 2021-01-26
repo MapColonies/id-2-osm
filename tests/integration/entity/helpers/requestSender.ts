@@ -19,6 +19,10 @@ export async function createEntity(app: Application, entity: { osmId?: unknown; 
   return supertest.agent(app).post('/entity').set('Content-Type', 'application/json').send(entity);
 }
 
+export async function createEntities(app: Application, entities: { osmId?: unknown; externalId?: unknown }[]): Promise<supertest.Response> {
+  return supertest.agent(app).post('/entity/bulk').set('Content-Type', 'application/json').send(entities);
+}
+
 export async function getEntity(app: Application, externalId: string): Promise<supertest.Response> {
   return supertest.agent(app).get(`/entity/${externalId}`).set('Content-Type', 'application/json');
 }

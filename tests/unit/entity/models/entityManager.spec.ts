@@ -52,6 +52,37 @@ describe('EntityManager', () => {
     });
   });
 
+  describe('#createEntities', () => {
+    it("resolves without errors if id's are not used", async () => {
+      findOne.mockResolvedValue(undefined);
+      insert.mockResolvedValue(undefined);
+      const entities = [createFakeEntity(), createFakeEntity()];
+
+      const createPromise = entityManager.createEntities(entities);
+
+      await expect(createPromise).resolves.not.toThrow();
+    });
+
+    it('rejects on DB error', async () => {
+      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
+      const entities = [createFakeEntity(), createFakeEntity()];
+
+      const createPromise = entityManager.createEntities(entities);
+
+      await expect(createPromise).rejects.toThrow(QueryFailedError);
+    });
+
+    it('rejects if any id already exists', async () => {
+      const entities = [createFakeEntity(), createFakeEntity()];
+      findOne.mockResolvedValue(entities);
+      insert.mockResolvedValue(undefined);
+
+      const createPromise = entityManager.createEntities(entities);
+
+      await expect(createPromise).rejects.toThrow(IdAlreadyExistsError);
+    });
+  });
+
   describe('#getEntity', () => {
     const findOne = jest.fn();
     beforeEach(() => {
