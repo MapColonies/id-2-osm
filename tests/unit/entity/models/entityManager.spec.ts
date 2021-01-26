@@ -159,4 +159,45 @@ describe('EntityManager', () => {
       await expect(deletePromise).rejects.toThrow("couldn't find an entity with the given id to delete");
     });
   });
+
+  describe('#deleteEntities', () => {
+    const find = jest.fn();
+    const deleteEntity = jest.fn();
+    beforeEach(() => {
+      const repository = ({ find, delete: deleteEntity } as unknown) as Repository<Entity>;
+      entityManager = new EntityManager(repository, { log: jest.fn() });
+    });
+    afterEach(() => {
+      find.mockClear();
+      deleteEntity.mockClear();
+    });
+    it('should resolve if the entities are deleted', async () => {
+      const entities = [createFakeEntity(), createFakeEntity()];
+      find.mockResolvedValue(entities);
+      deleteEntity.mockResolvedValue(undefined);
+
+      const deletePromise = entityManager.deleteEntities(entities.map((ent) => ent.externalId));
+
+      await expect(deletePromise).resolves.not.toThrow();
+    });
+
+    it('rejects on DB error', async () => {
+      const entities = [createFakeEntity(), createFakeEntity()];
+      find.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
+
+      const deletePromise = entityManager.deleteEntities(entities.map((ent) => ent.externalId));
+
+      await expect(deletePromise).rejects.toThrow(QueryFailedError);
+    });
+
+    it('should reject with error if entitiy does not exist', async () => {
+      const entities = [createFakeEntity(), createFakeEntity()];
+      find.mockReturnValue([]);
+      const ids = entities.map((ent) => ent.externalId);
+
+      const deletePromise = entityManager.deleteEntities(ids);
+
+      await expect(deletePromise).rejects.toThrow(`couldn't find one of the specified ids: ${JSON.stringify(ids)}`);
+    });
+  });
 });

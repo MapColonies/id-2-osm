@@ -30,3 +30,7 @@ export async function getEntity(app: Application, externalId: string): Promise<s
 export async function deleteEntity(app: Application, externalId: string): Promise<supertest.Response> {
   return supertest.agent(app).delete(`/entity/${externalId}`).set('Content-Type', 'application/json');
 }
+
+export async function deleteEntities(app: Application, externalIds: string[]): Promise<supertest.Response> {
+  return supertest.agent(app).delete('/entity/bulk').set('Content-Type', 'application/json').send(externalIds);
+}
