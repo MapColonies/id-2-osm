@@ -279,7 +279,7 @@ describe('entity', function () {
       expect(getResponse.status).toBe(httpStatusCodes.NOT_FOUND);
     });
 
-    it('bulk *️⃣', async function () {
+    it('bulk 📦', async function () {
       const entities = [createFakeEntity(), createFakeEntity()];
       const postResponse = await requestSender.createEntities(app, entities);
 
