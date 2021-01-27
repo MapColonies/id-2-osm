@@ -84,8 +84,9 @@ describe('EntityManager', () => {
   });
 
   describe('#getEntity', () => {
-    const findOne = jest.fn();
+    let findOne: jest.Mock;
     beforeEach(() => {
+      findOne = jest.fn();
       const repository = ({ findOne } as unknown) as Repository<Entity>;
       entityManager = new EntityManager(repository, { log: jest.fn() });
     });
@@ -121,9 +122,11 @@ describe('EntityManager', () => {
   });
 
   describe('#deleteEntity', () => {
-    const findOne = jest.fn();
-    const deleteEntity = jest.fn();
+    let findOne: jest.Mock;
+    let deleteEntity: jest.Mock;
     beforeEach(() => {
+      findOne = jest.fn();
+      deleteEntity = jest.fn();
       const repository = ({ findOne, delete: deleteEntity } as unknown) as Repository<Entity>;
       entityManager = new EntityManager(repository, { log: jest.fn() });
     });
@@ -161,19 +164,21 @@ describe('EntityManager', () => {
   });
 
   describe('#deleteEntities', () => {
-    const find = jest.fn();
-    const deleteEntity = jest.fn();
+    let findByIds: jest.Mock;
+    let deleteEntity: jest.Mock;
     beforeEach(() => {
-      const repository = ({ find, delete: deleteEntity } as unknown) as Repository<Entity>;
+      findByIds = jest.fn();
+      deleteEntity = jest.fn();
+      const repository = ({ findByIds, delete: deleteEntity } as unknown) as Repository<Entity>;
       entityManager = new EntityManager(repository, { log: jest.fn() });
     });
     afterEach(() => {
-      find.mockClear();
+      findByIds.mockClear();
       deleteEntity.mockClear();
     });
     it('should resolve if the entities are deleted', async () => {
       const entities = [createFakeEntity(), createFakeEntity()];
-      find.mockResolvedValue(entities);
+      findByIds.mockResolvedValue(entities);
       deleteEntity.mockResolvedValue(undefined);
 
       const deletePromise = entityManager.deleteEntities(entities.map((ent) => ent.externalId));
@@ -183,7 +188,7 @@ describe('EntityManager', () => {
 
     it('rejects on DB error', async () => {
       const entities = [createFakeEntity(), createFakeEntity()];
-      find.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
+      findByIds.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
       const deletePromise = entityManager.deleteEntities(entities.map((ent) => ent.externalId));
 
@@ -192,7 +197,7 @@ describe('EntityManager', () => {
 
     it('should reject with error if entitiy does not exist', async () => {
       const entities = [createFakeEntity(), createFakeEntity()];
-      find.mockReturnValue([]);
+      findByIds.mockReturnValue([]);
       const ids = entities.map((ent) => ent.externalId);
 
       const deletePromise = entityManager.deleteEntities(ids);

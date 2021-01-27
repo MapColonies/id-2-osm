@@ -224,7 +224,7 @@ describe('entity', function () {
     });
   });
 
-  describe('DELETE /entities', function () {
+  describe('DELETE /entity/bulk', function () {
     describe('Happy Path 🙂', function () {
       it('should return 204 status code', async function () {
         const entity = await createDbEntity();
@@ -252,12 +252,59 @@ describe('entity', function () {
 
       it('should return 500 status code if an db exception happens', async function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const mockedApp = requestSender.getMockedRepoApp({ find: findMock });
+        const mockedApp = requestSender.getMockedRepoApp({ findByIds: findMock });
         const response = await requestSender.deleteEntities(mockedApp, [createFakeEntity().externalId]);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');
       });
+    });
+  });
+
+  describe('Flow 🌊', function () {
+    it('single 1️⃣', async function () {
+      const entity = createFakeEntity();
+      const postResponse = await requestSender.createEntity(app, entity);
+
+      expect(postResponse.status).toBe(httpStatusCodes.CREATED);
+
+      let getResponse = await requestSender.getEntity(app, entity.externalId);
+      expect(getResponse.status).toBe(httpStatusCodes.OK);
+      expect(getResponse.body).toEqual(entity);
+
+      const deleteResponse = await requestSender.deleteEntity(app, entity.externalId);
+      expect(deleteResponse.status).toBe(httpStatusCodes.NO_CONTENT);
+
+      getResponse = await requestSender.getEntity(app, entity.externalId);
+      expect(getResponse.status).toBe(httpStatusCodes.NOT_FOUND);
+    });
+
+    it('bulk *️⃣', async function () {
+      const entities = [createFakeEntity(), createFakeEntity()];
+      const postResponse = await requestSender.createEntities(app, entities);
+
+      expect(postResponse.status).toBe(httpStatusCodes.CREATED);
+
+      await Promise.all(
+        entities.map(async (entity) => {
+          const getResponse = await requestSender.getEntity(app, entity.externalId);
+          expect(getResponse.status).toBe(httpStatusCodes.OK);
+          expect(getResponse.body).toEqual(entity);
+        })
+      );
+
+      const deleteResponse = await requestSender.deleteEntities(
+        app,
+        entities.map((entity) => entity.externalId)
+      );
+      expect(deleteResponse.status).toBe(httpStatusCodes.NO_CONTENT);
+
+      await Promise.all(
+        entities.map(async (entity) => {
+          const getResponse = await requestSender.getEntity(app, entity.externalId);
+          expect(getResponse.status).toBe(httpStatusCodes.NOT_FOUND);
+        })
+      );
     });
   });
 });
