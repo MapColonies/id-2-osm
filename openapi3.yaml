@@ -44,6 +44,26 @@ paths:
           $ref: '#/components/responses/UnprocessableEntity'
         '5XX':
           $ref: '#/components/responses/UnexpectedError'
+    delete:
+      summary: Delete multiple entities in a bulk operation
+      tags:
+        - entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExternalId'
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
   '/entity/{externalId}':
     get:
       summary: Get the entity by external id
@@ -86,9 +106,7 @@ components:
       name: externalId
       required: true
       schema:
-        type: string
-        minLength: 1
-        maxLength: 68
+        $ref: '#/components/schemas/ExternalId'
       description: the external id
       example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
   responses:
@@ -122,6 +140,11 @@ components:
       properties:
         message:
           type: string
+    ExternalId:
+      type: string
+      example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      minLength: 1
+      maxLength: 68
     Entity:
       type: object
       required:
@@ -129,10 +152,7 @@ components:
         - osmId
       properties:
         externalId:
-          type: string
-          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-          minLength: 1
-          maxLength: 68
+          $ref: '#/components/schemas/ExternalId'
         osmId:
           type: integer
           format: int64

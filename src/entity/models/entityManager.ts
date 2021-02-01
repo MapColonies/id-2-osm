@@ -63,4 +63,14 @@ export class EntityManager {
 
     await this.repository.delete(externalId);
   }
+
+  public async deleteEntities(externalIds: string[]): Promise<void> {
+    const entities = await this.repository.findByIds(externalIds);
+
+    if (entities.length !== externalIds.length) {
+      throw new EntityNotFoundError(`couldn't find one of the specified ids: ${JSON.stringify(externalIds)}`);
+    }
+
+    await this.repository.delete(externalIds);
+  }
 }

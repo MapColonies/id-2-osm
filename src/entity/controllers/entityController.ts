@@ -15,6 +15,7 @@ interface EntityParams {
 
 type GetEntityHandler = RequestHandler<EntityParams, Entity>;
 type DeleteEntityHandler = RequestHandler<EntityParams>;
+type DeleteManyEntityHandler = RequestHandler<undefined, undefined, string[]>;
 @injectable()
 export class EntityController {
   public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(Services.LOGGER) private readonly logger: ILogger) {}
@@ -66,6 +67,19 @@ export class EntityController {
 
     try {
       await this.manager.deleteEntity(externalId);
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+
+    res.sendStatus(httpStatus.NO_CONTENT);
+  };
+
+  public deleteMany: DeleteManyEntityHandler = async (req, res, next) => {
+    try {
+      await this.manager.deleteEntities(req.body);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;
