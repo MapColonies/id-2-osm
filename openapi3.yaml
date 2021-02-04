@@ -163,8 +163,8 @@ components:
       items:
         $ref: '#/components/schemas/Entity'
     osmId:
-        type: integer
-        format: int64
-        minimum: 0
-        example: 1337
-        exclusiveMinimum: true
+      type: integer
+      format: int64
+      minimum: 0
+      example: 1337
+      exclusiveMinimum: true

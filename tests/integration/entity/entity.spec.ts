@@ -159,7 +159,7 @@ describe('entity', function () {
         expect(response.body).toMatchObject(entity);
       });
 
-      it('should return 200 status code and only the osmId', async function () {
+      it('should return 200 status code and only the osmId with header of content-type text/plain', async function () {
         const responseType = 'text/plain';
         const entity = await createDbEntity();
         const response = await requestSender.getEntity(app, entity.externalId, responseType);
