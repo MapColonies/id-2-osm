@@ -78,6 +78,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Entity'
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/OsmId'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -163,3 +166,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Entity'
+    OsmId:
+      type: number
+      example: 1337

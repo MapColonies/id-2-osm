@@ -13,7 +13,7 @@ interface EntityParams {
   externalId: string;
 }
 
-type GetEntityHandler = RequestHandler<EntityParams, Entity>;
+type GetEntityHandler = RequestHandler<EntityParams, Entity | string>;
 type DeleteEntityHandler = RequestHandler<EntityParams>;
 type DeleteManyEntityHandler = RequestHandler<undefined, undefined, string[]>;
 @injectable()
@@ -22,6 +22,7 @@ export class EntityController {
 
   public get: GetEntityHandler = async (req, res, next) => {
     const { externalId } = req.params;
+    const { accept } = req.headers;
 
     let entity: Entity | undefined;
     try {
@@ -33,6 +34,10 @@ export class EntityController {
     if (!entity) {
       const error = new NotFoundError('Entity with given id was not found.');
       return next(error);
+    }
+
+    if (accept === 'text/plain') {
+      return res.status(httpStatus.OK).set('content-type', 'text/plain').send(entity.osmId.toString());
     }
 
     return res.status(httpStatus.OK).json(entity);
