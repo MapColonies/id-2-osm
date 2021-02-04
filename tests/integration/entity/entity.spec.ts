@@ -159,6 +159,16 @@ describe('entity', function () {
         expect(response.body).toMatchObject(entity);
       });
 
+      it('should return 200 status code and only the osmId with header of content-type text/plain', async function () {
+        const responseType = 'text/plain';
+        const entity = await createDbEntity();
+        const response = await requestSender.getEntity(app, entity.externalId, responseType);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+        expect(response.headers).toHaveProperty('content-type', 'text/plain; charset=utf-8');
+        expect(response.text).toEqual(entity.osmId.toString());
+      });
+
       describe('Bad Path 😡', function () {
         it('should return 400 status code and error message external id is too long', async function () {
           const response = await requestSender.getEntity(app, faker.random.alphaNumeric(69));
