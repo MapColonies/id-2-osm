@@ -80,7 +80,7 @@ paths:
                 $ref: '#/components/schemas/Entity'
             text/plain:
               schema:
-                $ref: '#/components/schemas/osmId'
+                $ref: '#/components/schemas/OsmId'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -143,6 +143,12 @@ components:
       properties:
         message:
           type: string
+    OsmId:
+      type: integer
+      format: int64
+      minimum: 0
+      example: 1337
+      exclusiveMinimum: true
     ExternalId:
       type: string
       example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
@@ -157,14 +163,8 @@ components:
         externalId:
           $ref: '#/components/schemas/ExternalId'
         osmId:
-          $ref: '#/components/schemas/osmId'
+          $ref: '#/components/schemas/OsmId'
     Entities:
       type: array
       items:
         $ref: '#/components/schemas/Entity'
-    osmId:
-      type: integer
-      format: int64
-      minimum: 0
-      example: 1337
-      exclusiveMinimum: true
