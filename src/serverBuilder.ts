@@ -2,22 +2,17 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { container, inject, injectable } from 'tsyringe';
 import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
-import { RequestLogger } from './common/middlewares/RequestLogger';
-import { ErrorHandler } from './common/middlewares/ErrorHandler';
+import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
+import { OpenapiRouterConfig, OpenapiViewerRouter } from '@map-colonies/openapi-express-viewer';
 import { Services } from './common/constants';
-import { IConfig } from './common/interfaces';
+import { IConfig, ILogger } from './common/interfaces';
 import { entityRouterFactory } from './entity/routes/entityRouter';
-import { openapiRouterFactory } from './common/routes/openapi';
 
 @injectable()
 export class ServerBuilder {
-  private readonly serverInstance = express();
+  private readonly serverInstance: express.Application;
 
-  public constructor(
-    @inject(Services.CONFIG) private readonly config: IConfig,
-    private readonly requestLogger: RequestLogger,
-    private readonly errorHandler: ErrorHandler
-  ) {
+  public constructor(@inject(Services.CONFIG) private readonly config: IConfig, @inject(Services.LOGGER) private readonly logger: ILogger) {
     this.serverInstance = express();
   }
 
@@ -30,8 +25,14 @@ export class ServerBuilder {
   }
 
   private buildRoutes(): void {
+    this.buildDocsRoutes();
     this.serverInstance.use('/entity', entityRouterFactory(container));
-    this.serverInstance.use('/', openapiRouterFactory(container));
+  }
+
+  private buildDocsRoutes(): void {
+    const openapiRouter = new OpenapiViewerRouter(this.config.get<OpenapiRouterConfig>('openapiConfig'));
+    openapiRouter.setup();
+    this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
   }
 
   private registerPreRoutesMiddleware(): void {
@@ -41,10 +42,10 @@ export class ServerBuilder {
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');
     this.serverInstance.use(OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex }));
 
-    this.serverInstance.use(this.requestLogger.getLoggerMiddleware());
+    this.registerPostRoutesMiddleware();
   }
 
   private registerPostRoutesMiddleware(): void {
-    this.serverInstance.use(this.errorHandler.getErrorHandlerMiddleware());
+    this.serverInstance.use(getErrorHandlerMiddleware((message) => this.logger.log('error', message)));
   }
 }
