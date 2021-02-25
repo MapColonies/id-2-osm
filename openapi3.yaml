@@ -4,7 +4,7 @@ info:
   description: Service to retrieve mapping
   version: 0.0.1
 servers:
-  - url: http://localhost:1337
+  - url: http://localhost:8080
 paths:
   '/entity':
     post:
