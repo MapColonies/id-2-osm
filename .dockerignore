@@ -7,3 +7,4 @@ node_modules
 .prettierrc.json
 commitlint.config.json
 README.md
+*Dockerfile
