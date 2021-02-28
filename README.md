@@ -75,5 +75,5 @@ docker run -it --rm -e NODE_ENV=production --network host -v /path/to/proudction
 
 ```sh
 npm install
-npm run start
+npm start
 ```
