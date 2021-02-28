@@ -2,7 +2,7 @@
 
 ----------------------------------------
 
-A restful API for saving and querying osm entities external id's
+A RESTful API for saving and querying OSM entities external id's
 
 
 ## Run Migrations
