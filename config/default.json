@@ -18,6 +18,6 @@
     "username": "avi",
     "password": "avi",
     "database": "avi",
-    "schema": "id-2-osm"
+    "schema": "id_2_osm"
   }
 }
