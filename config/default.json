@@ -17,6 +17,7 @@
     "port": 5432,
     "username": "avi",
     "password": "avi",
-    "database": "avi"
+    "database": "avi",
+    "schema": "public"
   }
 }
