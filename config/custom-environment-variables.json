@@ -17,7 +17,6 @@
     },
     "username": "DB_USERNAME",
     "password": "DB_PASSWORD",
-    "database": "DB_NAME",
-    "schema": "DB_SCHEMA"
+    "database": "DB_NAME"
   }
 }

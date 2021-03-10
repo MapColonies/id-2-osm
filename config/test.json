@@ -1,6 +1,7 @@
 {
   "db": {
     "type": "better-sqlite3",
-    "database": "./testdb.sqlite"
+    "database": "./testdb.sqlite",
+    "schema": "public"
   }
 }
