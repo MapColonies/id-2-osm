@@ -1,1 +1,9 @@
-{}
+{
+  "server": {
+    "request": {
+      "payload": {
+        "limit": "5mb"
+      }
+    }
+  }
+}
