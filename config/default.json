@@ -22,7 +22,7 @@
     "port": 5432,
     "username": "avi",
     "password": "avi",
-    "enableSslAuth": true,
+    "enableSslAuth": false,
     "sslPaths": {
       "ca": "",
       "key": "",
