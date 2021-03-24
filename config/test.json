@@ -2,6 +2,7 @@
   "db": {
     "type": "better-sqlite3",
     "database": "./testdb.sqlite",
-    "schema": "public"
+    "schema": "public",
+    "enableSslAuth": false
   }
 }
