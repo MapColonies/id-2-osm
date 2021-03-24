@@ -22,6 +22,12 @@
     "port": 5432,
     "username": "avi",
     "password": "avi",
+    "enableSslAuth": true,
+    "sslPaths": {
+      "ca": "",
+      "key": "",
+      "cert": ""
+    },
     "database": "avi",
     "schema": "id_2_osm"
   }

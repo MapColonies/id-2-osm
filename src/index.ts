@@ -12,7 +12,12 @@ interface IServerConfig {
 
 const serverConfig = get<IServerConfig>('server');
 const port: number = parseInt(serverConfig.port) || DEFAULT_SERVER_PORT;
-void getApp().then(async (app) => {
-  const probe = container.resolve<Probe>(Probe);
-  await probe.start(app, port);
-});
+void getApp()
+  .then(async (app) => {
+    const probe = container.resolve<Probe>(Probe);
+    await probe.start(app, port);
+  })
+  .catch((error: Error) => {
+    console.error('😢 - failed initializing the server');
+    console.error(error.message);
+  });

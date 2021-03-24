@@ -7,6 +7,8 @@ import { MCLogger, ILoggerConfig, IServiceConfig } from '@map-colonies/mc-logger
 import { Services } from './common/constants';
 import { Entity } from './entity/models/entity';
 import { promiseTimeout } from './common/utils/promiseTimeout';
+import { DbConfig } from './common/interfaces';
+import { initConnection } from './common/db/connection';
 
 const dbTimeout = 5000;
 
@@ -33,8 +35,9 @@ async function registerExternalValues(): Promise<void> {
   container.register(Services.CONFIG, { useValue: config });
   container.register(Services.LOGGER, { useValue: logger });
 
-  const connectionOptions = config.get<ConnectionOptions>('db');
-  const connection = await createConnection({ entities: ['entity/models/*.js'], ...connectionOptions });
+  const connectionOptions = config.get<DbConfig>('db');
+  const connection = await initConnection({ entities: ['entity/models/*.js'], ...connectionOptions });
+
   container.register(Connection, { useValue: connection });
   container.register('EntityRepository', { useValue: connection.getRepository(Entity) });
 
