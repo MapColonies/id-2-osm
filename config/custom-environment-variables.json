@@ -6,7 +6,20 @@
     "level": "LOG_LEVEL"
   },
   "server": {
-    "port": "SERVER_PORT"
+    "port": "SERVER_PORT",
+     "request": {
+      "payload": {
+        "limit": "REQUEST_PAYLOAD_LIMIT"
+      }
+    },
+    "response": {
+      "compression": {
+        "enabled": {
+          "__name": "RESPONSE_COMPRESSION_ENABLED",
+          "__format": "boolean"
+        }
+      }
+    }
   },
   "db": {
     "type": "DB_TYPE",

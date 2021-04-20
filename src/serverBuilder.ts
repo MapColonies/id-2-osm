@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import compression from 'compression';
 import { container, inject, injectable } from 'tsyringe';
 import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
@@ -36,6 +37,9 @@ export class ServerBuilder {
   }
 
   private registerPreRoutesMiddleware(): void {
+    if (this.config.get<boolean>('server.response.compression.enabled')) {
+      this.serverInstance.use(compression(this.config.get<compression.CompressionFilter>('server.response.compression.options')));
+    }
     this.serverInstance.use(express.json(this.config.get<bodyParser.Options>('server.request.payload')));
 
     const ignorePathRegex = new RegExp(`^${this.config.get<string>('openapiConfig.basePath')}/.*`, 'i');
