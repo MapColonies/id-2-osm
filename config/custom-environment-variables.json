@@ -7,7 +7,7 @@
   },
   "server": {
     "port": "SERVER_PORT",
-     "request": {
+    "request": {
       "payload": {
         "limit": "REQUEST_PAYLOAD_LIMIT"
       }
