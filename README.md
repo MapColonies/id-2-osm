@@ -1,8 +1,19 @@
 # id-2-osm
+----------------------------------
 
-----------------------------------------
+![badge-alerts-lgtm](https://img.shields.io/lgtm/alerts/github/MapColonies/id-2-osm?style=for-the-badge)
+
+![grade-badge-lgtm](https://img.shields.io/lgtm/grade/javascript/github/MapColonies/id-2-osm?style=for-the-badge)
+
+![snyk](https://img.shields.io/snyk/vulnerabilities/github/MapColonies/id-2-osm?style=for-the-badge)
+
+----------------------------------
+
 
 A RESTful API for saving and querying OSM entities external id's
+
+## API
+Checkout the OpenAPI spec [here](/openapi3.yaml)
 
 
 ## Run Migrations
