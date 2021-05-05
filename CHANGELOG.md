@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/MapColonies/id-2-osm/compare/v1.1.0...v1.1.1) (2021-05-05)
+
+
+### Bug Fixes
+
+* **configurations:** removed servers list from openapi3.yml ([99ce1d6](https://github.com/MapColonies/id-2-osm/commit/99ce1d6b245572f2a28085461d11d76ca42f1ded))
+
 ## [1.1.0](https://github.com/MapColonies/id-2-osm/compare/v1.0.0...v1.1.0) (2021-05-03)
 
 
