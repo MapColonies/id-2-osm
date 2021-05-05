@@ -3,8 +3,7 @@ info:
   title: external-id-2-osm
   description: Service to retrieve mapping
   version: 0.0.1
-servers:
-  - url: http://localhost:8080
+
 paths:
   '/entity':
     post:
