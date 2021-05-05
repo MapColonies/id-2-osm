@@ -3,10 +3,14 @@ info:
   title: external-id-2-osm
   description: Service to retrieve mapping
   version: 0.0.1
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 
 paths:
   '/entity':
     post:
+      operationId: add-entity
       summary: Add a new external entity to the id mapping
       tags:
         - entity
@@ -26,6 +30,7 @@ paths:
           $ref: '#/components/responses/UnexpectedError'
   '/entity/bulk':
     post:
+      operationId: add-bulk-entities
       summary: Add multiple entities in a bulk operation
       tags:
         - entity
@@ -44,6 +49,7 @@ paths:
         '5XX':
           $ref: '#/components/responses/UnexpectedError'
     delete:
+      operationId: delete-bulk-entities
       summary: Delete multiple entities in a bulk operation
       tags:
         - entity
@@ -65,6 +71,7 @@ paths:
           $ref: '#/components/responses/UnexpectedError'
   '/entity/{externalId}':
     get:
+      operationId: get-entity-by-externalId
       summary: Get the entity by external id
       tags:
         - entity
@@ -87,6 +94,7 @@ paths:
         '5XX':
           $ref: '#/components/responses/UnexpectedError'
     delete:
+      operationId: delete-entity
       summary: Remove an entity
       tags:
         - entity
