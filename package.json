@@ -1,6 +1,6 @@
 {
   "name": "id-2-osm",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "A restful API for saving and querying osm entities external id's",
   "main": "./src/index.ts",
   "scripts": {
