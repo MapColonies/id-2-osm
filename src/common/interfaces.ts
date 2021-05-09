@@ -1,8 +1,7 @@
-import { ILogMethod } from '@map-colonies/mc-logger';
 import { ConnectionOptions } from 'typeorm';
 
-export interface ILogger {
-  log: ILogMethod;
+export interface IServerConfig {
+  port: string;
 }
 
 export type DbConfig = {

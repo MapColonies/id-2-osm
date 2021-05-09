@@ -1,3 +1,4 @@
+import jsLogger from '@map-colonies/js-logger';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Entity } from '../../../../src/entity/models/entity';
 import { EntityManager } from '../../../../src/entity/models/entityManager';
@@ -14,7 +15,7 @@ describe('EntityManager', () => {
     insert = jest.fn();
     findOne = jest.fn();
     const repository = ({ insert, findOne } as unknown) as Repository<Entity>;
-    entityManager = new EntityManager(repository, { log: jest.fn() });
+    entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
   });
 
   afterEach(() => {
@@ -88,7 +89,7 @@ describe('EntityManager', () => {
     beforeEach(() => {
       findOne = jest.fn();
       const repository = ({ findOne } as unknown) as Repository<Entity>;
-      entityManager = new EntityManager(repository, { log: jest.fn() });
+      entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       findOne.mockClear();
@@ -128,7 +129,7 @@ describe('EntityManager', () => {
       findOne = jest.fn();
       deleteEntity = jest.fn();
       const repository = ({ findOne, delete: deleteEntity } as unknown) as Repository<Entity>;
-      entityManager = new EntityManager(repository, { log: jest.fn() });
+      entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       findOne.mockClear();
@@ -170,7 +171,7 @@ describe('EntityManager', () => {
       findByIds = jest.fn();
       deleteEntity = jest.fn();
       const repository = ({ findByIds, delete: deleteEntity } as unknown) as Repository<Entity>;
-      entityManager = new EntityManager(repository, { log: jest.fn() });
+      entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       findByIds.mockClear();
