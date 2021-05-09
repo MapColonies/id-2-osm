@@ -66,7 +66,6 @@
   "devDependencies": {
     "@commitlint/cli": "^9.1.1",
     "@commitlint/config-conventional": "^10.0.0",
-    "@map-colonies/error-express-handler": "^1.2.0",
     "@map-colonies/eslint-config": "^2.2.0",
     "@map-colonies/openapi-express-viewer": "^2.0.1",
     "@map-colonies/prettier-config": "0.0.1",
