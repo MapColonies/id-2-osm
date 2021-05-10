@@ -5,15 +5,17 @@ import { container, inject, injectable } from 'tsyringe';
 import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
 import { OpenapiRouterConfig, OpenapiViewerRouter } from '@map-colonies/openapi-express-viewer';
+import httpLogger from '@map-colonies/express-access-log-middleware';
+import { Logger } from '@map-colonies/js-logger';
 import { Services } from './common/constants';
-import { IConfig, ILogger } from './common/interfaces';
+import { IConfig } from './common/interfaces';
 import { entityRouterFactory } from './entity/routes/entityRouter';
 
 @injectable()
 export class ServerBuilder {
   private readonly serverInstance: express.Application;
 
-  public constructor(@inject(Services.CONFIG) private readonly config: IConfig, @inject(Services.LOGGER) private readonly logger: ILogger) {
+  public constructor(@inject(Services.CONFIG) private readonly config: IConfig, @inject(Services.LOGGER) private readonly logger: Logger) {
     this.serverInstance = express();
   }
 
@@ -41,6 +43,7 @@ export class ServerBuilder {
       this.serverInstance.use(compression(this.config.get<compression.CompressionFilter>('server.response.compression.options')));
     }
     this.serverInstance.use(express.json(this.config.get<bodyParser.Options>('server.request.payload')));
+    this.serverInstance.use(httpLogger({ logger: this.logger }));
 
     const ignorePathRegex = new RegExp(`^${this.config.get<string>('openapiConfig.basePath')}/.*`, 'i');
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');
@@ -50,6 +53,6 @@ export class ServerBuilder {
   }
 
   private registerPostRoutesMiddleware(): void {
-    this.serverInstance.use(getErrorHandlerMiddleware((message) => this.logger.log('error', message)));
+    this.serverInstance.use(getErrorHandlerMiddleware());
   }
 }

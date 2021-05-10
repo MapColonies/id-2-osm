@@ -1,11 +1,10 @@
-import { Request, RequestHandler, Response } from 'express';
+import { Logger } from '@map-colonies/js-logger';
+import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Services } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
-import { ILogger } from '../../common/interfaces';
 import { Entity } from '../models/entity';
-
 import { EntityManager } from '../models/entityManager';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 
@@ -18,7 +17,7 @@ type DeleteEntityHandler = RequestHandler<EntityParams>;
 type DeleteManyEntityHandler = RequestHandler<undefined, undefined, string[]>;
 @injectable()
 export class EntityController {
-  public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(Services.LOGGER) private readonly logger: ILogger) {}
+  public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(Services.LOGGER) private readonly logger: Logger) {}
 
   public get: GetEntityHandler = async (req, res, next) => {
     const { externalId } = req.params;

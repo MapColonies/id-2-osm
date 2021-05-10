@@ -1,7 +1,7 @@
+import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { In, Repository } from 'typeorm';
 import { Services } from '../../common/constants';
-import { ILogger } from '../../common/interfaces';
 import { Entity, IEntity } from './entity';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 
@@ -9,7 +9,7 @@ import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 export class EntityManager {
   public constructor(
     @inject('EntityRepository') private readonly repository: Repository<Entity>,
-    @inject(Services.LOGGER) private readonly logger: ILogger
+    @inject(Services.LOGGER) private readonly logger: Logger
   ) {}
 
   public async getEntity(externalId: string): Promise<Entity | undefined> {
@@ -17,7 +17,7 @@ export class EntityManager {
   }
 
   public async createEntity(newEntity: IEntity): Promise<void> {
-    this.logger.log('info', `creating new entity ${JSON.stringify(newEntity)}`);
+    this.logger.info(`creating new entity ${JSON.stringify(newEntity)}`);
 
     const dbEntity = await this.repository.findOne({ where: [{ externalId: newEntity.externalId }, { osmId: newEntity.osmId }] });
 
@@ -35,7 +35,7 @@ export class EntityManager {
   }
 
   public async createEntities(newEntities: IEntity[]): Promise<void> {
-    this.logger.log('info', `creating bulk entities`);
+    this.logger.info(`creating bulk entities`);
 
     const dbEntity = await this.repository.findOne({
       where: [
