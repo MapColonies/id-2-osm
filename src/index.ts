@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import http from 'http';
 import { container } from 'tsyringe';
 import { get } from 'config';
-import { createTerminus, HealthCheck, HealthCheckError } from '@godaddy/terminus';
+import { createTerminus, HealthCheck } from '@godaddy/terminus';
 import { Logger } from '@map-colonies/js-logger';
 import { DEFAULT_SERVER_PORT, Services } from './common/constants';
 import { IServerConfig } from './common/interfaces';
