@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/MapColonies/id-2-osm/compare/v1.2.0...v1.3.0) (2021-05-25)
+
+
+### Features
+
+* **configurations:** added otel support of tracing and metrics ([#56](https://github.com/MapColonies/id-2-osm/issues/56)) ([1135142](https://github.com/MapColonies/id-2-osm/commit/11351427981108b00dbf5e211a4a03741936a0fc))
+
+
+### Bug Fixes
+
+* **configurations:** standard-version now bumps both files ([498a91c](https://github.com/MapColonies/id-2-osm/commit/498a91cf547a76832c3120b22d54f5ec7b84eb6c))
+* **configurations:** updated image to Dockerfile to reduce vulnerabilities ([#57](https://github.com/MapColonies/id-2-osm/issues/57)) ([f7e9bf5](https://github.com/MapColonies/id-2-osm/commit/f7e9bf54524b8c7150ee7f7ba404778d531a0bc8))
+
 ## [1.2.0](https://github.com/MapColonies/id-2-osm/compare/v1.1.1...v1.2.0) (2021-05-05)
 
 

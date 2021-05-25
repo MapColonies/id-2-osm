@@ -2,13 +2,12 @@ openapi: 3.0.1
 info:
   title: external-id-2-osm
   description: Service to retrieve mapping
-  version: 0.0.1
+  version: 1.3.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-
 paths:
-  '/entity':
+  /entity:
     post:
       operationId: add-entity
       summary: Add a new external entity to the id mapping
@@ -26,9 +25,9 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/UnexpectedError'
-  '/entity/bulk':
+  /entity/bulk:
     post:
       operationId: add-bulk-entities
       summary: Add multiple entities in a bulk operation
@@ -46,7 +45,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/UnexpectedError'
     delete:
       operationId: delete-bulk-entities
@@ -67,9 +66,9 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/UnexpectedError'
-  '/entity/{externalId}':
+  /entity/{externalId}:
     get:
       operationId: get-entity-by-externalId
       summary: Get the entity by external id
@@ -91,7 +90,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/UnexpectedError'
     delete:
       operationId: delete-entity
@@ -107,7 +106,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/UnexpectedError'
 components:
   parameters:
