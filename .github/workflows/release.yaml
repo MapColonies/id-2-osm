@@ -1,0 +1,32 @@
+name: Publish release and push to ACR
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+
+  publish_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code for CHANGELOG.md
+        uses: actions/checkout@v2
+
+      - name: Publish Release to Github
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  push_image_to_ACR:
+    runs-on: ubuntu-latest
+
+    steps:
+        - name: Azure Pipelines Action
+          uses: Azure/pipelines@v1
+          with:
+            azure-devops-project-url: https://dev.azure.com/Libot-Mipui-Org/id-2-osm
+            azure-pipeline-name: 'build-and-push-to-ACR'
+            azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN }}
