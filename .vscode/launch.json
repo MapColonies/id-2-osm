@@ -11,11 +11,16 @@
       "preLaunchTask": "npm: build",
       "sourceMaps": true,
       "smartStep": true,
+      "outputCapture": "std",
       "internalConsoleOptions": "openOnSessionStart",
       "cwd": "${workspaceFolder}/dist",
       "skipFiles": ["<node_internals>/**"],
       "outFiles": ["${workspaceFolder}/dist/**/*.js", "!**/node_modules/**"],
-      "program": "${workspaceFolder}/src/index.ts"
+      "program": "${workspaceFolder}/src/index.ts",
+      "env": {
+        "LOG_PRETTY_PRINT_ENABLED": "true",
+        "NODE_ENV": "development"
+      }
     }
   ]
 }

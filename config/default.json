@@ -7,7 +7,8 @@
   },
   "telemetry": {
     "logger": {
-      "level": "info"
+      "level": "info",
+      "prettyPrint": false
     }
   },
   "server": {
@@ -26,17 +27,17 @@
   },
   "db": {
     "type": "postgres",
-    "host": "localhost",
+    "host": "10.8.1.15",
     "port": 5432,
-    "username": "avi",
-    "password": "avi",
+    "username": "postgres",
+    "password": "postgres",
     "enableSslAuth": false,
     "sslPaths": {
       "ca": "",
       "key": "",
       "cert": ""
     },
-    "database": "avi",
+    "database": "id-2-osm-dev",
     "schema": "id_2_osm"
   }
 }
