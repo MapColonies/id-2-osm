@@ -1,0 +1,32 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "id-2-osm.name" . -}}
+{{- $tracingUrl := include "id-2-osm.tracingUrl" . -}}
+{{- $metricsUrl := include "id-2-osm.metricsUrl" . -}}
+{{- if .Values.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $releaseName }}-{{ $chartName }}-configmap
+data:
+  REQUEST_PAYLOAD_LIMIT: {{ .Values.env.requestPayloadLimit | quote }}
+  RESPONSE_COMPRESSION_ENABLED: {{ .Values.env.responseCompressionEnabled | quote }}
+  LOG_LEVEL: {{ .Values.env.logLevel | quote }}
+  DB_HOST: {{ .Values.dbConfig.host }}
+  DB_NAME: {{ .Values.dbConfig.database }}
+  DB_CERT_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.certFileName }}
+  DB_KEY_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.keyFileName }}
+  DB_CA_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.caFileName }}
+  {{- if .Values.dbConfig.sslAuth.enabled }}
+  DB_ENABLE_SSL_AUTH: "true"
+  {{- else }}
+  DB_ENABLE_SSL_AUTH: "false"
+  {{- end }}
+  {{ if .Values.global.tracing.enabled }}
+  TELEMETRY_TRACING_ENABLED: 'true'
+  TELEMETRY_TRACING_URL: {{ $tracingUrl }}
+  {{ end }}
+  {{ if .Values.global.metrics.enabled }}
+  TELEMETRY_METRICS_ENABLED: 'true'
+  TELEMETRY_METRICS_URL: {{ $metricsUrl }}
+  {{ end }}
+{{- end }}

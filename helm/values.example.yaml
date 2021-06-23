@@ -1,0 +1,61 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+
+enabled: true
+
+tracing:
+  enabled: true
+  url: meow
+
+metrics:
+  enabled: false
+  url: meow
+
+image:
+  repository: id-2-osm
+  tag: 'v1.0.0'
+
+replicaCount: 1
+
+cloudProvider:
+  dockerRegistryUrl: my-registry-url.io
+  flavor: openshift
+
+env:
+  port: 8080
+  targetPort: 8080
+  protocol: TCP
+  logLevel: info
+  requestPayloadLimit: 1mb
+  responseCompressionEnabled: true
+
+# external
+dbConfig:
+  host: localhost
+  username: postgres
+  password: postgres
+  database: postgres
+  sslAuth:
+    enabled: false
+    secretName: secret-name
+    certFileName: postgresql.crt
+    keyFileName: postgresql.key
+    caFileName: root.crt
+
+initialDelaySeconds: 600
+
+resources:
+  enabled: false
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+route:
+  enabled: true
+  path: /

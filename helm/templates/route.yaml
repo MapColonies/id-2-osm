@@ -1,0 +1,18 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "id-2-osm.name" . -}}
+{{- $cloudProviderFlavor := include "id-2-osm.cloudProviderFlavor" . -}}
+{{- if and (and (.Values.enabled) (eq $cloudProviderFlavor "openshift")) (.Values.route.enabled) -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ $releaseName }}-{{ $chartName }}-route
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+spec:
+  path:  {{ .Values.route.path | default "/" }}
+  to:
+    kind: Service
+    name: {{ $releaseName }}-{{ $chartName }}
+  tls:
+    termination: edge
+{{- end -}}

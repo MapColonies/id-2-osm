@@ -105,3 +105,6 @@ dist
 .tern-port
 
 reports
+
+helm/values.yaml
+helm/values.yml
