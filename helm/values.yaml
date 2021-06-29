@@ -2,20 +2,14 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
+  environment: {}
 
 enabled: true
-
-tracing:
-  enabled: true
-  url: meow
-
-metrics:
-  enabled: false
-  url: meow
+environment: development
 
 image:
   repository: id-2-osm
-  tag: 'v1.0.0'
+  tag: 'latest'
 
 replicaCount: 1
 
@@ -30,6 +24,13 @@ env:
   logLevel: info
   requestPayloadLimit: 1mb
   responseCompressionEnabled: true
+  tracing:
+    enabled: false
+    url: 'http://localhost:55681/v1/trace'
+
+  metrics:
+    enabled: false
+    url: 'http://localhost:55681/v1/metrics'
 
 # external
 dbConfig:

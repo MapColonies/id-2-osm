@@ -68,6 +68,7 @@
     "@map-colonies/eslint-config": "^2.2.0",
     "@map-colonies/openapi-express-viewer": "^2.0.1",
     "@map-colonies/prettier-config": "0.0.1",
+    "@map-colonies/standard-version-update-helm-version": "^2.0.1",
     "@map-colonies/standard-version-update-openapi3-version": "0.0.1",
     "@redocly/openapi-cli": "^1.0.0-beta.44",
     "@types/compression": "^1.7.0",
