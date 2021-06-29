@@ -32,10 +32,9 @@ spec:
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}
-          {{- if eq $cloudProviderFlavor "openshift" }}
+          {{- if ne $cloudProviderFlavor "minikube" }}
           image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ .tag }}
-          {{- end }}
-          {{- if eq $cloudProviderFlavor "minikube" }}
+          {{- else }}
           image: {{ .repository }}:{{ .tag }}
           {{- end }}
           {{- end }}
