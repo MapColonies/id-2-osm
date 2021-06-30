@@ -31,7 +31,7 @@ const beforeShutdown = (connection: Connection): (() => Promise<void>) => {
 async function registerExternalValues(): Promise<void> {
   const loggerConfig = config.get<LoggerOptions>('logger');
   // @ts-expect-error the signature is wrong
-  const logger = jsLogger({ ...loggerConfig, prettyPrint: true, hooks: { logMethod } });
+  const logger = jsLogger({ ...loggerConfig, prettyPrint: false, hooks: { logMethod } });
 
   container.register(Services.CONFIG, { useValue: config });
   container.register(Services.LOGGER, { useValue: logger });
