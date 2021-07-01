@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/MapColonies/id-2-osm/compare/v1.3.1...v1.4.0) (2021-07-01)
+
+
+### Features
+
+* added traceparent header on response ([#73](https://github.com/MapColonies/id-2-osm/issues/73)) ([0516521](https://github.com/MapColonies/id-2-osm/commit/05165214d3d99df72fa466821d3a1553ab1d89a3))
+
 ### [1.3.1](https://github.com/MapColonies/id-2-osm/compare/v1.3.0...v1.3.1) (2021-05-25)
 
 
