@@ -5,8 +5,10 @@
     "rawPath": "/api",
     "uiPath": "/api"
   },
-  "logger": {
-    "level": "info"
+  "telemetry": {
+    "logger": {
+      "level": "info"
+    }
   },
   "server": {
     "port": "8080",
