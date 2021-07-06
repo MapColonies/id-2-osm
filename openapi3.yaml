@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: external-id-2-osm
   description: Service to retrieve mapping
-  version: 1.4.0
+  version: 1.4.1
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
