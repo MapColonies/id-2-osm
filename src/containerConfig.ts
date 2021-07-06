@@ -4,6 +4,7 @@ import { Connection } from 'typeorm';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { logMethod, Metrics } from '@map-colonies/telemetry';
 import { HealthCheck } from '@godaddy/terminus';
+import { trace } from '@opentelemetry/api';
 import { Services } from './common/constants';
 import { Entity } from './entity/models/entity';
 import { promiseTimeout } from './common/utils/promiseTimeout';
@@ -29,7 +30,7 @@ const beforeShutdown = (connection: Connection): (() => Promise<void>) => {
 };
 
 async function registerExternalValues(): Promise<void> {
-  const loggerConfig = config.get<LoggerOptions>('logger');
+  const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   // @ts-expect-error the signature is wrong
   const logger = jsLogger({ ...loggerConfig, prettyPrint: false, hooks: { logMethod } });
 
@@ -44,7 +45,8 @@ async function registerExternalValues(): Promise<void> {
   container.register(Connection, { useValue: connection });
   container.register('EntityRepository', { useValue: connection.getRepository(Entity) });
 
-  const tracer = tracing.start();
+  tracing.start();
+  const tracer = trace.getTracer('id-2-osm');
   container.register(Services.TRACER, { useValue: tracer });
 
   const metrics = new Metrics('change-merger');
