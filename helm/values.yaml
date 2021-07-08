@@ -1,0 +1,60 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+  environment: {}
+
+enabled: true
+environment: development
+replicaCount: 1
+initialDelaySeconds: 600
+
+image:
+  repository: id-2-osm
+  tag: 'latest'
+
+cloudProvider:
+  dockerRegistryUrl: my-registry-url.io
+  flavor: openshift
+
+env:
+  port: 8080
+  targetPort: 8080
+  protocol: TCP
+  logLevel: info
+  requestPayloadLimit: 1mb
+  responseCompressionEnabled: true
+  tracing:
+    enabled: false
+    url: 'http://localhost:55681/v1/trace'
+
+  metrics:
+    enabled: false
+    url: 'http://localhost:55681/v1/metrics'
+
+# external
+dbConfig:
+  host: localhost
+  username: postgres
+  password: postgres
+  database: postgres
+  sslAuth:
+    enabled: false
+    secretName: secret-name
+    certFileName: postgresql.crt
+    keyFileName: postgresql.key
+    caFileName: root.crt
+
+resources:
+  enabled: false
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+route:
+  enabled: true
+  path: /

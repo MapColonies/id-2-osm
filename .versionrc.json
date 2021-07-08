@@ -7,6 +7,14 @@
     {
       "filename": "package.json",
       "type": "json"
+    },
+    {
+      "filename": "package-lock.json",
+      "type": "json"
+    },
+    {
+      "filename": "/helm/Chart.yml",
+      "updater": "node_modules/@map-colonies/standard-version-update-helm-version/src/index.js"
     }
   ]
 }

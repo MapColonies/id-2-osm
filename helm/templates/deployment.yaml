@@ -1,0 +1,74 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "id-2-osm.name" . -}}
+{{- $cloudProviderFlavor := include "id-2-osm.cloudProviderFlavor" . -}}
+{{- $cloudProviderDockerRegistryUrl := include "id-2-osm.cloudProviderDockerRegistryUrl" . -}}
+{{- if .Values.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $releaseName }}-{{ $chartName }}
+  labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    environment: {{ include "id-2-osm.environment" . }}
+    release: {{ $releaseName }}
+    {{- include "id-2-osm.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $chartName }}
+      release: {{ $releaseName }}
+      run: {{ $releaseName }}-{{ $chartName }}
+      {{- include "id-2-osm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ $chartName }}
+        release: {{ $releaseName }}
+        run: {{ $releaseName }}-{{ $chartName }}
+        {{- include "id-2-osm.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ $releaseName }}-{{ $chartName }}-deployment
+          {{- with .Values.image }}
+          {{- if ne $cloudProviderFlavor "minikube" }}
+          image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ .tag }}
+          {{- else }}
+          image: {{ .repository }}:{{ .tag }}
+          {{- end }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ $releaseName }}-{{ $chartName }}-configmap
+            - secretRef:
+                name: {{ $releaseName }}-{{ $chartName }}-secret
+          env:
+            - name: SERVER_PORT
+              value: {{ .Values.env.targetPort | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.env.targetPort }}
+              protocol: {{ .Values.env.protocol }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            httpGet:
+              path: /liveness
+              port: http
+          {{- if .Values.resources.enabled }}
+          resources:
+            {{- toYaml .Values.resources.value | nindent 12 }}
+          {{- end }}
+          {{- if .Values.dbConfig.sslAuth.enabled }}
+          volumeMounts:
+            - name: cert-conf
+              mountPath: /tmp/certs
+              readOnly: true
+          {{- end }}
+      {{- if .Values.dbConfig.sslAuth.enabled }}
+      volumes:
+        - name: cert-conf
+          secret:
+            secretName: {{ .Values.dbConfig.sslAuth.secretName }}
+      {{- end }}
+{{- end -}}

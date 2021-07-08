@@ -7,7 +7,11 @@
     "hostname": "TELEMETRY_HOST_NAME",
     "version": "TELEMETRY_SERVICE_VERSION",
     "logger": {
-      "level": "LOG_LEVEL"
+      "level": "LOG_LEVEL",
+      "prettyPrint": {
+        "__name": "LOG_PRETTY_PRINT_ENABLED",
+        "__format": "boolean"
+      }
     },
     "tracing": {
       "enabled": "TELEMETRY_TRACING_ENABLED",
