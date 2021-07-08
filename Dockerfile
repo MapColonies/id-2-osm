@@ -9,7 +9,7 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-FROM node:12.22.0-slim as production
+FROM node:12.22.1-slim as production
 
 ARG SERVICE_NAME=id-2-osm
 ENV NODE_ENV=production
