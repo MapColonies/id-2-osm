@@ -6,12 +6,12 @@ global:
 
 enabled: true
 environment: development
+replicaCount: 1
+initialDelaySeconds: 600
 
 image:
   repository: id-2-osm
   tag: 'latest'
-
-replicaCount: 1
 
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
@@ -44,8 +44,6 @@ dbConfig:
     certFileName: postgresql.crt
     keyFileName: postgresql.key
     caFileName: root.crt
-
-initialDelaySeconds: 600
 
 resources:
   enabled: false
