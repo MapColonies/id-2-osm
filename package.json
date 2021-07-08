@@ -9,6 +9,7 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "prelint:fix": "npm run format:fix",
+    "prelint": "npm run format",
     "lint:openapi": "openapi lint ./openapi3.yaml",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
