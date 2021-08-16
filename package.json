@@ -54,7 +54,7 @@
     "compression": "^1.7.4",
     "config": "^3.3.6",
     "express": "^4.17.1",
-    "express-openapi-validator": "^4.12.14",
+    "express-openapi-validator": "^4.12.15",
     "http-status-codes": "^2.1.2",
     "js-yaml": "^3.14.1",
     "pg": "^8.7.1",
