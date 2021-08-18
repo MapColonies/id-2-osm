@@ -4,17 +4,24 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Services } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
-import { Entity } from '../models/entity';
+import { Entity, IEntity } from '../models/entity';
 import { EntityManager } from '../models/entityManager';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
+
+type BulkAction = 'create' | 'delete';
+interface BulkRequestBody {
+  action: BulkAction;
+  payload: IEntity | string[];
+}
 
 interface EntityParams {
   externalId: string;
 }
 
 type GetEntityHandler = RequestHandler<EntityParams, Entity | string>;
+type PostEntityHandler = RequestHandler<undefined, undefined, IEntity>;
+type PostBulkEntitiesHandler = RequestHandler<undefined, undefined, BulkRequestBody>;
 type DeleteEntityHandler = RequestHandler<EntityParams>;
-type DeleteManyEntityHandler = RequestHandler<undefined, undefined, string[]>;
 @injectable()
 export class EntityController {
   public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(Services.LOGGER) private readonly logger: Logger) {}
@@ -42,7 +49,7 @@ export class EntityController {
     return res.status(httpStatus.OK).json(entity);
   };
 
-  public post: RequestHandler = async (req, res, next) => {
+  public post: PostEntityHandler = async (req, res, next) => {
     try {
       await this.manager.createEntity(req.body);
     } catch (error) {
@@ -54,16 +61,26 @@ export class EntityController {
     return res.sendStatus(httpStatus.CREATED);
   };
 
-  public postMany: RequestHandler = async (req, res, next) => {
+  public postBulk: PostBulkEntitiesHandler = async (req, res, next) => {
+    let responseStatusCode;
+    const { action, payload } = req.body;
     try {
-      await this.manager.createEntities(req.body);
+      if (action === 'create') {
+        responseStatusCode = httpStatus.CREATED;
+        await this.manager.createEntities((payload as unknown) as IEntity[]);
+      } else {
+        responseStatusCode = httpStatus.NO_CONTENT;
+        await this.manager.deleteEntities((payload as unknown) as string[]);
+      }
     } catch (error) {
       if (error instanceof IdAlreadyExistsError) {
         (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
+      } else if (error instanceof EntityNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
       }
       return next(error);
     }
-    return res.sendStatus(httpStatus.CREATED);
+    return res.sendStatus(responseStatusCode);
   };
 
   public delete: DeleteEntityHandler = async (req, res, next) => {
@@ -71,19 +88,6 @@ export class EntityController {
 
     try {
       await this.manager.deleteEntity(externalId);
-    } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        (error as HttpError).status = httpStatus.NOT_FOUND;
-      }
-      return next(error);
-    }
-
-    res.sendStatus(httpStatus.NO_CONTENT);
-  };
-
-  public deleteMany: DeleteManyEntityHandler = async (req, res, next) => {
-    try {
-      await this.manager.deleteEntities(req.body);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;

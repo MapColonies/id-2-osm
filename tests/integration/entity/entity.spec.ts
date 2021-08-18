@@ -29,7 +29,7 @@ describe('entity', function () {
 
     describe('Bad Path 😡', function () {
       it('should return 400 status code and error message if osm id is missing', async function () {
-        const response = await requestSender.createEntity(app, { externalId: faker.random.uuid() });
+        const response = await requestSender.createEntity(app, { externalId: faker.datatype.uuid() });
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
@@ -37,7 +37,7 @@ describe('entity', function () {
       });
 
       it('should return 400 status code and error message if osm id is not valid', async function () {
-        const response = await requestSender.createEntity(app, { externalId: faker.random.uuid(), osmId: faker.lorem.word() });
+        const response = await requestSender.createEntity(app, { externalId: faker.datatype.uuid(), osmId: faker.lorem.word() });
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
@@ -83,10 +83,11 @@ describe('entity', function () {
     });
   });
 
-  describe('POST /entity/bulk', function () {
+  describe('POST /entity/bulk Action: CREATE', function () {
     describe('Happy Path 🙂', function () {
       it('should return 201 status code', async function () {
-        const response = await requestSender.createEntities(app, [createFakeEntity()]);
+        const requestBody = { action: 'create', payload: [createFakeEntity()] };
+        const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.CREATED);
       });
@@ -94,42 +95,72 @@ describe('entity', function () {
 
     describe('Bad Path 😡', function () {
       it('should return 400 status code and error message if osm id is missing', async function () {
-        const response = await requestSender.createEntities(app, [{ externalId: faker.random.uuid() }]);
+        const requestBody = { action: 'create', payload: [{ externalId: faker.datatype.uuid() }] };
+        const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-
-        expect(response.body).toHaveProperty('message', "request.body[0] should have required property 'osmId'");
+        expect(response.body).toHavePropertyThatContains('message', `request.body.payload[0] should have required property 'osmId'`);
       });
 
       it('should return 400 status code and error message if osm id is not valid', async function () {
-        const response = await requestSender.createEntities(app, [{ externalId: faker.random.uuid(), osmId: faker.lorem.word() }]);
+        const requestBody = { action: 'create', payload: [{ externalId: faker.datatype.uuid(), osmId: faker.lorem.word() }] };
+        const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHaveProperty('message', 'request.body[0].osmId should be integer');
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0].osmId should be integer');
       });
 
       it('should return 400 status code and error message if external id is missing', async function () {
-        const response = await requestSender.createEntities(app, [{ osmId: createOsmId() }]);
+        const requestBody = { action: 'create', payload: [{ osmId: createOsmId() }] };
+        const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHaveProperty('message', "request.body[0] should have required property 'externalId'");
+        expect(response.body).toHavePropertyThatContains('message', "request.body.payload[0] should have required property 'externalId'");
       });
 
       it('should return 400 status code and error message if external id is not valid', async function () {
-        const response = await requestSender.createEntities(app, [{ externalId: {}, osmId: createOsmId() }]);
+        const requestBody = { action: 'create', payload: [{ externalId: {}, osmId: createOsmId() }] };
+        const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHaveProperty('message', 'request.body[0].externalId should be string');
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0].externalId should be string');
+      });
+
+      it('should return 400 status code and error message if action is delete', async function () {
+        const requestBody = { action: 'delete', payload: [{ externalId: faker.datatype.uuid() }] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0] should be string');
+      });
+
+      it('should return 400 status code and error message if action is invalid', async function () {
+        const requestBody = { action: 'badAction', payload: [{ externalId: faker.datatype.uuid() }] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.action should be equal to one of the allowed values');
+      });
+
+      it('should return 400 status code and error message if payload is empty', async function () {
+        const requestBody = { action: 'create', payload: [] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload should NOT have fewer than 1 items');
       });
     });
 
     describe('Sad Path 😥', function () {
       it('should return 422 status code if an entity with the same id exists', async function () {
         const entity = await createDbEntity();
-        const response = await requestSender.createEntities(app, [entity]);
+        const requestBody = { action: 'create', payload: [entity] };
+        const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
         expect(response.body).toHaveProperty('message', `an entity with the following ids: ${JSON.stringify(entity)} already exists`);
@@ -140,7 +171,83 @@ describe('entity', function () {
 
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.createEntities(mockedApp, [createFakeEntity()]);
+        const requestBody = { action: 'create', payload: [createFakeEntity()] };
+        const response = await requestSender.postBulk(mockedApp, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
+      });
+    });
+  });
+
+  describe('POST /entity/bulk Action: DELETE', function () {
+    describe('Happy Path 🙂', function () {
+      it('should return 204 status code', async function () {
+        const entity = await createDbEntity();
+        const requestBody = { action: 'delete', payload: [entity.externalId] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.NO_CONTENT);
+      });
+    });
+    describe('Bad Path 😡', function () {
+      it('should return 400 status code and error message if external id is too long', async function () {
+        const requestBody = { action: 'delete', payload: [faker.random.alphaNumeric(69)] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0] should NOT be longer than 68 characters');
+      });
+
+      it('should return 400 status code and error message if external id is not valid', async function () {
+        const requestBody = { action: 'delete', payload: [faker.datatype.number()] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0] should be string');
+      });
+
+      it('should return 400 status code and error message if action is create', async function () {
+        const requestBody = { action: 'create', payload: [faker.datatype.uuid()] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0] should be object');
+      });
+
+      it('should return 400 status code and error message if action is invalid', async function () {
+        const requestBody = { action: 'badAction', payload: [{ externalId: faker.datatype.uuid() }] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.action should be equal to one of the allowed values');
+      });
+
+      it('should return 400 status code and error message if payload is empty', async function () {
+        const requestBody = { action: 'delete', payload: [] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload should NOT have fewer than 1 items');
+      });
+    });
+    describe('Sad Path 😥', function () {
+      it('should return 404 if an entity with the requested id does not exist', async function () {
+        const randomId = faker.random.alphaNumeric(20);
+        const requestBody = { action: 'delete', payload: [randomId] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+        expect(response.body).toHaveProperty('message', `couldn't find one of the specified ids: ${JSON.stringify([randomId])}`);
+      });
+
+      it('should return 500 status code if an db exception happens', async function () {
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const mockedApp = requestSender.getMockedRepoApp({ findByIds: findMock });
+        const requestBody = { action: 'delete', payload: [createFakeEntity().externalId] };
+        const response = await requestSender.postBulk(mockedApp, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');
@@ -170,7 +277,7 @@ describe('entity', function () {
       });
 
       describe('Bad Path 😡', function () {
-        it('should return 400 status code and error message external id is too long', async function () {
+        it('should return 400 status code and error message if external id is too long', async function () {
           const response = await requestSender.getEntity(app, faker.random.alphaNumeric(69));
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
@@ -208,7 +315,7 @@ describe('entity', function () {
       });
     });
     describe('Bad Path 😡', function () {
-      it('should return 400 status code and error message external id is too long', async function () {
+      it('should return 400 status code and error message if external id is too long', async function () {
         const response = await requestSender.deleteEntity(app, faker.random.alphaNumeric(69));
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
@@ -227,43 +334,6 @@ describe('entity', function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
         const response = await requestSender.deleteEntity(mockedApp, createFakeEntity().externalId);
-
-        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-        expect(response.body).toHaveProperty('message', 'failed');
-      });
-    });
-  });
-
-  describe('DELETE /entity/bulk', function () {
-    describe('Happy Path 🙂', function () {
-      it('should return 204 status code', async function () {
-        const entity = await createDbEntity();
-        const response = await requestSender.deleteEntities(app, [entity.externalId]);
-
-        expect(response.status).toBe(httpStatusCodes.NO_CONTENT);
-      });
-    });
-    describe('Bad Path 😡', function () {
-      it('should return 400 status code and error message external id is too long', async function () {
-        const response = await requestSender.deleteEntities(app, [faker.random.alphaNumeric(69)]);
-
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', 'request.body[0] should NOT be longer than 68 characters');
-      });
-    });
-    describe('Sad Path 😥', function () {
-      it('should return 404 if an entity with the requested id does not exist', async function () {
-        const randomId = faker.random.alphaNumeric(20);
-        const response = await requestSender.deleteEntities(app, [randomId]);
-
-        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', `couldn't find one of the specified ids: ${JSON.stringify([randomId])}`);
-      });
-
-      it('should return 500 status code if an db exception happens', async function () {
-        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const mockedApp = requestSender.getMockedRepoApp({ findByIds: findMock });
-        const response = await requestSender.deleteEntities(mockedApp, [createFakeEntity().externalId]);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');
@@ -291,7 +361,8 @@ describe('entity', function () {
 
     it('bulk 📦', async function () {
       const entities = [createFakeEntity(), createFakeEntity()];
-      const postResponse = await requestSender.createEntities(app, entities);
+      const requestBody = { action: 'create', payload: entities };
+      const postResponse = await requestSender.postBulk(app, requestBody);
 
       expect(postResponse.status).toBe(httpStatusCodes.CREATED);
 
@@ -303,10 +374,10 @@ describe('entity', function () {
         })
       );
 
-      const deleteResponse = await requestSender.deleteEntities(
-        app,
-        entities.map((entity) => entity.externalId)
-      );
+      const deleteResponse = await requestSender.postBulk(app, {
+        action: 'delete',
+        payload: entities.map((entity) => entity.externalId),
+      });
       expect(deleteResponse.status).toBe(httpStatusCodes.NO_CONTENT);
 
       await Promise.all(

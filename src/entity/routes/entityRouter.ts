@@ -7,8 +7,7 @@ const entityRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
   const controller = dependencyContainer.resolve(EntityController);
 
   router.post('/', controller.post);
-  router.post('/bulk', controller.postMany);
-  router.delete('/bulk', controller.deleteMany);
+  router.post('/bulk', controller.postBulk);
   router.get('/:externalId', controller.get);
   router.delete('/:externalId', controller.delete);
 

@@ -15,6 +15,7 @@ module.exports = {
     ],
   ],
   collectCoverage: true,
+  setupFilesAfterEnv: ['<rootDir>/tests/matchers.js'],
   moduleDirectories: ['node_modules', 'src'],
   collectCoverageFrom: ['<rootDir>/src/**/*.{ts}', '!**/node_modules/**', '!**/vendor/**'],
   preset: 'ts-jest',
