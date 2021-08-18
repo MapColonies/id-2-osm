@@ -30,7 +30,7 @@ paths:
   /entity/bulk:
     post:
       operationId: add-or-delete-bulk-entities
-      summary: Add or delete multiple entities in a bulk operation
+      summary: Entity bulk operation
       tags:
         - entity
       requestBody:
@@ -42,10 +42,8 @@ paths:
                 - $ref: '#/components/schemas/BulkCreateRequest'
                 - $ref: '#/components/schemas/BulkDeleteRequest'
       responses:
-        '201':
-          description: Created
-        '204':
-          description: Deleted
+        '200':
+          description: Operation was successful
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':

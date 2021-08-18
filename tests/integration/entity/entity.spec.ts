@@ -89,7 +89,7 @@ describe('entity', function () {
         const requestBody = { action: 'create', payload: [createFakeEntity()] };
         const response = await requestSender.postBulk(app, requestBody);
 
-        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.status).toBe(httpStatusCodes.OK);
       });
     });
 
@@ -187,7 +187,7 @@ describe('entity', function () {
         const requestBody = { action: 'delete', payload: [entity.externalId] };
         const response = await requestSender.postBulk(app, requestBody);
 
-        expect(response.status).toBe(httpStatusCodes.NO_CONTENT);
+        expect(response.status).toBe(httpStatusCodes.OK);
       });
     });
     describe('Bad Path 😡', function () {
@@ -364,7 +364,7 @@ describe('entity', function () {
       const requestBody = { action: 'create', payload: entities };
       const postResponse = await requestSender.postBulk(app, requestBody);
 
-      expect(postResponse.status).toBe(httpStatusCodes.CREATED);
+      expect(postResponse.status).toBe(httpStatusCodes.OK);
 
       await Promise.all(
         entities.map(async (entity) => {
@@ -378,7 +378,7 @@ describe('entity', function () {
         action: 'delete',
         payload: entities.map((entity) => entity.externalId),
       });
-      expect(deleteResponse.status).toBe(httpStatusCodes.NO_CONTENT);
+      expect(deleteResponse.status).toBe(httpStatusCodes.OK);
 
       await Promise.all(
         entities.map(async (entity) => {

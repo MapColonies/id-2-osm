@@ -1,6 +1,6 @@
 import { Logger } from '@map-colonies/js-logger';
 import { RequestHandler } from 'express';
-import httpStatus from 'http-status-codes';
+import httpStatus, { StatusCodes } from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Services } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
@@ -8,15 +8,26 @@ import { Entity, IEntity } from '../models/entity';
 import { EntityManager } from '../models/entityManager';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 
-type BulkAction = 'create' | 'delete';
-interface BulkRequestBody {
-  action: BulkAction;
-  payload: IEntity | string[];
-}
-
 interface EntityParams {
   externalId: string;
 }
+
+enum BulkActions {
+  CREATE = 'create',
+  DELETE = 'delete',
+}
+
+interface BulkCreateRequestBody {
+  action: BulkActions.CREATE;
+  payload: IEntity[];
+}
+
+interface BulkDeleteRequestBody {
+  action: BulkActions.DELETE;
+  payload: string[];
+}
+
+type BulkRequestBody = BulkCreateRequestBody | BulkDeleteRequestBody;
 
 type GetEntityHandler = RequestHandler<EntityParams, Entity | string>;
 type PostEntityHandler = RequestHandler<undefined, undefined, IEntity>;
@@ -62,15 +73,11 @@ export class EntityController {
   };
 
   public postBulk: PostBulkEntitiesHandler = async (req, res, next) => {
-    let responseStatusCode;
-    const { action, payload } = req.body;
     try {
-      if (action === 'create') {
-        responseStatusCode = httpStatus.CREATED;
-        await this.manager.createEntities((payload as unknown) as IEntity[]);
+      if (req.body.action === BulkActions.CREATE) {
+        await this.manager.createEntities(req.body.payload);
       } else {
-        responseStatusCode = httpStatus.NO_CONTENT;
-        await this.manager.deleteEntities((payload as unknown) as string[]);
+        await this.manager.deleteEntities(req.body.payload);
       }
     } catch (error) {
       if (error instanceof IdAlreadyExistsError) {
@@ -80,7 +87,7 @@ export class EntityController {
       }
       return next(error);
     }
-    return res.sendStatus(responseStatusCode);
+    return res.sendStatus(StatusCodes.OK);
   };
 
   public delete: DeleteEntityHandler = async (req, res, next) => {
