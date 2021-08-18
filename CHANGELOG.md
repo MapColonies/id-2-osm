@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/MapColonies/id-2-osm/compare/v1.5.1...v2.0.0) (2021-08-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* **entity:** one endpoint for entity bulk creation and deletion (#90)
+
+### Features
+
+* **entity:** one endpoint for entity bulk creation and deletion ([#90](https://github.com/MapColonies/id-2-osm/issues/90)) ([db6dca5](https://github.com/MapColonies/id-2-osm/commit/db6dca527fd699a9ea70070f5c4269fa44c3c556))
+
 ### [1.5.1](https://github.com/MapColonies/id-2-osm/compare/v1.5.0...v1.5.1) (2021-08-04)
 
 ## [1.5.0](https://github.com/MapColonies/id-2-osm/compare/v1.4.1...v1.5.0) (2021-07-08)
