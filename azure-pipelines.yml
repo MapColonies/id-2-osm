@@ -5,9 +5,9 @@
 trigger: none
 pr: none
 # can replace the git hub action build and push trigger
-  # tags:
-  #   include:
-  #   - v2.*
+# tags:
+#   include:
+#   - v2.*
 resources:
   repositories:
     - repository: devops
@@ -20,29 +20,28 @@ variables:
   HELM_EXPERIMENTAL_OCI: 1
 
 stages:
-- stage: Build
-  displayName: Build and push stage
-  jobs:
-  - job: Build
-    displayName: Build
-    pool: 
-      name: aro-nonprod-pool
-    steps:
-    - checkout: self
-    - template: azure-pipelines/buildAndPush.yaml@devops
-      parameters:
-        # the service connection name for the docker registry Default is ACR
-        # dockerRegistryServiceConnection:
-        # the path to the docker file Default is [root Folder]/DockerFile
-        dockerfilePaths:
-        - name: id-2-osm
-          path: '$(Build.SourcesDirectory)/Dockerfile'
-        - name: id-2-osm-migrations
-          path: '$(Build.SourcesDirectory)/migrations.Dockerfile'
-        # the url of the helm registry Default [ACR non prod registry url]
-        # helmrRegistryUrl:
-        # the path to the helm folder. Default is [root Folder]/helm
-        # helmFolderPath:
-        # the name of the app. the name of the image and the name of the chart will be the same.
-        appName: id-2-osm
-
+  - stage: Build
+    displayName: Build and push stage
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          name: aro-nonprod-pool
+        steps:
+          - checkout: self
+          - template: azure-pipelines/buildAndPush.yaml@devops
+            parameters:
+              # the service connection name for the docker registry Default is ACR
+              # dockerRegistryServiceConnection:
+              # the path to the docker file Default is [root Folder]/DockerFile
+              dockerfilePaths:
+                - name: id-2-osm
+                  path: '$(Build.SourcesDirectory)/Dockerfile'
+                - name: id-2-osm-migrations
+                  path: '$(Build.SourcesDirectory)/migrations.Dockerfile'
+              # the url of the helm registry Default [ACR non prod registry url]
+              # helmrRegistryUrl:
+              # the path to the helm folder. Default is [root Folder]/helm
+              # helmFolderPath:
+              # the name of the app. the name of the image and the name of the chart will be the same.
+              appName: id-2-osm
