@@ -44,4 +44,4 @@ stages:
               # the path to the helm folder. Default is [root Folder]/helm
               # helmFolderPath:
               # the name of the app. the name of the image and the name of the chart will be the same.
-              appName: id-2-osm
+              appName: ""
