@@ -1,7 +1,7 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { In, Repository } from 'typeorm';
-import { Services } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 import { Entity, IEntity } from './entity';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 
@@ -9,7 +9,7 @@ import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 export class EntityManager {
   public constructor(
     @inject('EntityRepository') private readonly repository: Repository<Entity>,
-    @inject(Services.LOGGER) private readonly logger: Logger
+    @inject(SERVICES.LOGGER) private readonly logger: Logger
   ) {}
 
   public async getEntity(externalId: string): Promise<Entity | undefined> {

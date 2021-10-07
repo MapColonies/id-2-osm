@@ -2,7 +2,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { RequestHandler } from 'express';
 import httpStatus, { StatusCodes } from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { Services } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
 import { Entity, IEntity } from '../models/entity';
 import { EntityManager } from '../models/entityManager';
@@ -35,7 +35,7 @@ type PostBulkEntitiesHandler = RequestHandler<undefined, undefined, BulkRequestB
 type DeleteEntityHandler = RequestHandler<EntityParams>;
 @injectable()
 export class EntityController {
-  public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(Services.LOGGER) private readonly logger: Logger) {}
+  public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(SERVICES.LOGGER) private readonly logger: Logger) {}
 
   public get: GetEntityHandler = async (req, res, next) => {
     const { externalId } = req.params;
