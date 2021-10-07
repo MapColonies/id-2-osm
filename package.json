@@ -22,7 +22,8 @@
     "build": "tsc --project tsconfig.build.json  && npm run assets:copy",
     "start": "npm run build && cd dist && node ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "install": "npx husky install"
   },
   "directories": {
     "test": "tests"
@@ -45,6 +46,7 @@
     "@map-colonies/error-express-handler": "^2.0.0",
     "@map-colonies/express-access-log-middleware": "0.0.3",
     "@map-colonies/js-logger": "0.0.3",
+    "@map-colonies/read-pkg": "0.0.1",
     "@map-colonies/telemetry": "^3.0.0",
     "@opentelemetry/api": "^1.0.1",
     "@opentelemetry/api-metrics": "^0.22.0",

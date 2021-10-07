@@ -8,7 +8,7 @@ import { OpenapiRouterConfig, OpenapiViewerRouter } from '@map-colonies/openapi-
 import httpLogger from '@map-colonies/express-access-log-middleware';
 import { Logger } from '@map-colonies/js-logger';
 import { getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
-import { Services } from './common/constants';
+import { SERVICES } from './common/constants';
 import { IConfig } from './common/interfaces';
 import { entityRouterFactory } from './entity/routes/entityRouter';
 
@@ -16,7 +16,7 @@ import { entityRouterFactory } from './entity/routes/entityRouter';
 export class ServerBuilder {
   private readonly serverInstance: express.Application;
 
-  public constructor(@inject(Services.CONFIG) private readonly config: IConfig, @inject(Services.LOGGER) private readonly logger: Logger) {
+  public constructor(@inject(SERVICES.CONFIG) private readonly config: IConfig, @inject(SERVICES.LOGGER) private readonly logger: Logger) {
     this.serverInstance = express();
   }
 

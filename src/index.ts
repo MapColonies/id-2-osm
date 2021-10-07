@@ -5,7 +5,7 @@ import { container } from 'tsyringe';
 import { get } from 'config';
 import { createTerminus, HealthCheck } from '@godaddy/terminus';
 import { Logger } from '@map-colonies/js-logger';
-import { DEFAULT_SERVER_PORT, Services } from './common/constants';
+import { DEFAULT_SERVER_PORT, SERVICES } from './common/constants';
 import { IServerConfig } from './common/interfaces';
 import { getApp } from './app';
 
@@ -14,8 +14,8 @@ const port: number = parseInt(serverConfig.port) || DEFAULT_SERVER_PORT;
 
 void getApp()
   .then((app) => {
-    const logger = container.resolve<Logger>(Services.LOGGER);
-    const healthCheck = container.resolve<HealthCheck>(Services.HEALTHCHECK);
+    const logger = container.resolve<Logger>(SERVICES.LOGGER);
+    const healthCheck = container.resolve<HealthCheck>(SERVICES.HEALTHCHECK);
     const server = createTerminus(http.createServer(app), { healthChecks: { '/liveness': healthCheck, onSignal: container.resolve('onSignal') } });
 
     server.listen(port, () => {
