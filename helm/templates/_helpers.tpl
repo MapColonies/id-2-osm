@@ -6,6 +6,13 @@ Expand the name of the chart.
 {{- end }}
 
 {{/*
+Returns the tag of the chart.
+*/}}
+{{- define "id-2-osm.tag" -}}
+{{- default (printf "v%s" .Chart.AppVersion) .Values.image.tag }}
+{{- end }}
+
+{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
@@ -88,7 +95,7 @@ Returns the tracing url from global if exists or from the chart's values
 {{- if .Values.global.tracing.url }}
     {{- .Values.global.tracing.url -}}
 {{- else if .Values.cloudProvider -}}
-    {{- .Values.tracing.url -}}
+    {{- .Values.env.tracing.url -}}
 {{- end -}}
 {{- end -}}
 
@@ -99,6 +106,6 @@ Returns the tracing url from global if exists or from the chart's values
 {{- if .Values.global.metrics.url }}
     {{- .Values.global.metrics.url -}}
 {{- else -}}
-    {{- .Values.metrics.url -}}
+    {{- .Values.env.metrics.url -}}
 {{- end -}}
 {{- end -}}

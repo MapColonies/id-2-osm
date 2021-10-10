@@ -11,7 +11,7 @@ initialDelaySeconds: 600
 
 image:
   repository: id-2-osm
-  tag: 'latest'
+  # tag: 'latest'
 
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
@@ -27,7 +27,6 @@ env:
   tracing:
     enabled: false
     url: 'http://localhost:55681/v1/trace'
-
   metrics:
     enabled: false
     url: 'http://localhost:55681/v1/metrics'
