@@ -27,17 +27,17 @@
   },
   "db": {
     "type": "postgres",
-    "host": "10.8.1.15",
+    "host": "localhost",
     "port": 5432,
     "username": "postgres",
-    "password": "postgres",
+    "password": "avi",
     "enableSslAuth": false,
     "sslPaths": {
       "ca": "",
       "key": "",
       "cert": ""
     },
-    "database": "id-2-osm-dev",
+    "database": "id-2-osm",
     "schema": "id_2_osm"
   }
 }
