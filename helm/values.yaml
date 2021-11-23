@@ -9,13 +9,14 @@ environment: development
 replicaCount: 1
 initialDelaySeconds: 600
 
-image:
-  repository: id-2-osm
-  # tag: 'latest'
-
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
   flavor: openshift
+
+image:
+  repository: id-2-osm
+  # Overrides the image tag whose default is the chart appVersion.
+  # tag: 'latest'
 
 env:
   port: 8080
@@ -57,3 +58,6 @@ resources:
 route:
   enabled: true
   path: /
+  timeout:
+    enabled: false # defaults to 30s by openshift
+    duration: 60s # supported units (us, ms, s, m, h, d)
