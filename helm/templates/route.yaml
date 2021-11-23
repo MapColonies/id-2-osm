@@ -8,6 +8,9 @@ metadata:
   name: {{ $releaseName }}-{{ $chartName }}-route
   annotations:
     haproxy.router.openshift.io/rewrite-target: /
+    {{- if .Values.route.timeout.enabled }}
+    haproxy.router.openshift.io/timeout: {{ .Values.route.timeout.duration }}
+    {{- end }}
 spec:
   path:  {{ .Values.route.path | default "/" }}
   to:

@@ -2,6 +2,7 @@
 {{- $chartName := include "id-2-osm.name" . -}}
 {{- $cloudProviderFlavor := include "id-2-osm.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "id-2-osm.cloudProviderDockerRegistryUrl" . -}}
+{{- $tag := include "id-2-osm.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -33,9 +34,9 @@ spec:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}
           {{- if ne $cloudProviderFlavor "minikube" }}
-          image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ .tag }}
+          image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ $tag }}
           {{- else }}
-          image: {{ .repository }}:{{ .tag }}
+          image: {{ .repository }}:{{ $tag }}
           {{- end }}
           {{- end }}
           envFrom:
