@@ -52,7 +52,7 @@
     "@opentelemetry/api-metrics": "^0.22.0",
     "@opentelemetry/instrumentation-express": "^0.22.0",
     "@opentelemetry/instrumentation-http": "^0.22.0",
-    "@opentelemetry/instrumentation-pg": "^0.22.0",
+    "@opentelemetry/instrumentation-pg": "^0.28.0",
     "compression": "^1.7.4",
     "config": "^3.3.6",
     "express": "^4.17.1",
