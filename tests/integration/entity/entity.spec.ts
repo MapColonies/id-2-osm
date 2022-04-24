@@ -295,7 +295,7 @@ describe('entity', function () {
 
         it('should return 500 status code if an db exception happens', async function () {
           const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-          const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+          const mockedApp = requestSender.getMockedRepoApp({ findOneBy: findMock });
           const response = await requestSender.getEntity(mockedApp, createFakeEntity().externalId);
 
           expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
@@ -332,7 +332,7 @@ describe('entity', function () {
 
       it('should return 500 status code if an db exception happens', async function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+        const mockedApp = requestSender.getMockedRepoApp({ findOneBy: findMock });
         const response = await requestSender.deleteEntity(mockedApp, createFakeEntity().externalId);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);

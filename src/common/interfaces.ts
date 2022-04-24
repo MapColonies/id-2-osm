@@ -1,4 +1,4 @@
-import { ConnectionOptions } from 'typeorm';
+import { DataSourceOptions } from 'typeorm';
 
 export interface IServerConfig {
   port: string;
@@ -7,7 +7,7 @@ export interface IServerConfig {
 export type DbConfig = {
   enableSslAuth: boolean;
   sslPaths: { ca: string; cert: string; key: string };
-} & ConnectionOptions;
+} & DataSourceOptions;
 
 export interface IConfig {
   get: <T>(setting: string) => T;

@@ -12,8 +12,8 @@ export class EntityManager {
     @inject(SERVICES.LOGGER) private readonly logger: Logger
   ) {}
 
-  public async getEntity(externalId: string): Promise<Entity | undefined> {
-    return this.repository.findOne(externalId);
+  public async getEntity(externalId: string): Promise<Entity | null> {
+    return this.repository.findOneBy({ externalId });
   }
 
   public async createEntity(newEntity: IEntity): Promise<void> {
@@ -55,7 +55,7 @@ export class EntityManager {
   }
 
   public async deleteEntity(externalId: string): Promise<void> {
-    const entity = await this.repository.findOne(externalId);
+    const entity = await this.repository.findOneBy({ externalId });
 
     if (!entity) {
       throw new EntityNotFoundError("couldn't find an entity with the given id to delete");
