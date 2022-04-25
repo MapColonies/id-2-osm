@@ -1,19 +1,21 @@
 import { hostname } from 'os';
 import { readFileSync } from 'fs';
-import { Connection, ConnectionOptions, createConnection } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { DbConfig } from '../interfaces';
 
-export const createConnectionOptions = (dbConfig: DbConfig): ConnectionOptions => {
-  const { enableSslAuth, sslPaths, ...connectionOptions } = dbConfig;
+export const createConnectionOptions = (dbConfig: DbConfig): DataSourceOptions => {
+  const { enableSslAuth, sslPaths, ...dataSourceOptions } = dbConfig;
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  connectionOptions.extra = { application_name: `${hostname()}-${process.env.NODE_ENV ?? 'unknown_env'}` };
-  if (enableSslAuth && connectionOptions.type === 'postgres') {
-    connectionOptions.password = undefined;
-    connectionOptions.ssl = { key: readFileSync(sslPaths.key), cert: readFileSync(sslPaths.cert), ca: readFileSync(sslPaths.ca) };
+  dataSourceOptions.extra = { application_name: `${hostname()}-${process.env.NODE_ENV ?? 'unknown_env'}` };
+  if (enableSslAuth && dataSourceOptions.type === 'postgres') {
+    dataSourceOptions.password = undefined;
+    dataSourceOptions.ssl = { key: readFileSync(sslPaths.key), cert: readFileSync(sslPaths.cert), ca: readFileSync(sslPaths.ca) };
   }
-  return connectionOptions;
+  return dataSourceOptions;
 };
 
-export const initConnection = async (dbConfig: DbConfig): Promise<Connection> => {
-  return createConnection(createConnectionOptions(dbConfig));
+export const initConnection = async (dbConfig: DbConfig): Promise<DataSource> => {
+  const dataSource = new DataSource(createConnectionOptions(dbConfig));
+  await dataSource.connect();
+  return dataSource;
 };

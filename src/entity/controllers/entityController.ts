@@ -41,7 +41,7 @@ export class EntityController {
     const { externalId } = req.params;
     const { accept } = req.headers;
 
-    let entity: Entity | undefined;
+    let entity: Entity | null;
     try {
       entity = await this.manager.getEntity(externalId);
     } catch (error) {

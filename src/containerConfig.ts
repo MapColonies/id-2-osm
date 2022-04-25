@@ -1,6 +1,6 @@
 import { container } from 'tsyringe';
 import config from 'config';
-import { Connection } from 'typeorm';
+import { DataSource } from 'typeorm';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { logMethod, Metrics } from '@map-colonies/telemetry';
 import { HealthCheck } from '@godaddy/terminus';
@@ -12,7 +12,7 @@ import { DbConfig } from './common/interfaces';
 import { initConnection } from './common/db/connection';
 import { tracing } from './common/tracing';
 
-const healthCheck = (connection: Connection): HealthCheck => {
+const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
     const check = connection.query('SELECT 1').then(() => {
       return;
@@ -21,7 +21,7 @@ const healthCheck = (connection: Connection): HealthCheck => {
   };
 };
 
-const beforeShutdown = (connection: Connection): (() => Promise<void>) => {
+const beforeShutdown = (connection: DataSource): (() => Promise<void>) => {
   return async (): Promise<void> => {
     await connection.close();
   };
@@ -40,7 +40,7 @@ async function registerExternalValues(): Promise<void> {
 
   container.register(SERVICES.HEALTHCHECK, { useValue: healthCheck(connection) });
 
-  container.register(Connection, { useValue: connection });
+  container.register(DataSource, { useValue: connection });
   container.register('EntityRepository', { useValue: connection.getRepository(Entity) });
 
   tracing.start();
