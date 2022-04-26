@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [12.x, 14.x]
+        node: [12.x, 14.x, 16.x]
 
     steps:
       - name: Check out Git repository
@@ -70,3 +70,17 @@ jobs:
         with:
           name: Test Reporters
           path: reports/**
+
+  build_image:
+    name: Build Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: build Docker image
+        run: docker build -t test-build:latest .
+
+      - name: build migrations Docker image
+        run: docker build -f ./migrations.Dockerfile -t test-migrations-build:latest .
