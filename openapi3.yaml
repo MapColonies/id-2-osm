@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: external-id-2-osm
+  title: id-2-osm
   description: Service to retrieve mapping
   version: 2.0.0
   license:

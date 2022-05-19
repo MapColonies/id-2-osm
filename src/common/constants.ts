@@ -15,3 +15,4 @@ export const SERVICES: Record<string, symbol> = {
   METER: Symbol('Meter'),
   HEALTHCHECK: Symbol('HEALTHCHECK'),
 };
+/* eslint-enable @typescript-eslint/naming-convention */

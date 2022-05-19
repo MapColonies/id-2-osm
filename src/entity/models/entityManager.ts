@@ -20,7 +20,7 @@ export class EntityManager {
 
   public async createEntity(newEntity: IEntity): Promise<void> {
     const { externalId, osmId } = newEntity;
-    this.logger.info({ msg: `creating new entity`, externalId, osmId });
+    this.logger.info({ msg: 'creating new entity', externalId, osmId });
 
     const dbEntity = await this.repository.findOne({ where: [{ externalId }, { osmId }] });
 
@@ -55,7 +55,11 @@ export class EntityManager {
     if (dbEntity) {
       const message = `an entity with the following ids: ${JSON.stringify(dbEntity)} already exists`;
 
-      this.logger.error({ msg: 'could not bulk create bulk, found an entity with already existing id', osmId: dbEntity.osmId, externalId: dbEntity.externalId });
+      this.logger.error({
+        msg: 'could not bulk create bulk, found an entity with already existing id',
+        osmId: dbEntity.osmId,
+        externalId: dbEntity.externalId,
+      });
       throw new IdAlreadyExistsError(message);
     }
 
@@ -63,7 +67,7 @@ export class EntityManager {
   }
 
   public async deleteEntity(externalId: string): Promise<void> {
-    this.logger.info({ msg: `deleting entity`, externalId });
+    this.logger.info({ msg: 'deleting entity', externalId });
 
     const entity = await this.repository.findOneBy({ externalId });
 
@@ -77,7 +81,7 @@ export class EntityManager {
   }
 
   public async deleteEntities(externalIds: string[]): Promise<void> {
-    this.logger.info({ msg: `deleting bulk entities`, amount: externalIds.length });
+    this.logger.info({ msg: 'deleting bulk entities', amount: externalIds.length });
 
     const entities = await this.repository.findByIds(externalIds);
 
