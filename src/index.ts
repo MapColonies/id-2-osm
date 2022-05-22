@@ -2,14 +2,14 @@
 import 'reflect-metadata';
 import http from 'http';
 import { container } from 'tsyringe';
-import { get } from 'config';
+import config from 'config';
 import { createTerminus, HealthCheck } from '@godaddy/terminus';
 import { Logger } from '@map-colonies/js-logger';
 import { DEFAULT_SERVER_PORT, SERVICES } from './common/constants';
 import { IServerConfig } from './common/interfaces';
 import { getApp } from './app';
 
-const serverConfig = get<IServerConfig>('server');
+const serverConfig = config.get<IServerConfig>('server');
 const port: number = parseInt(serverConfig.port) || DEFAULT_SERVER_PORT;
 
 void getApp()
