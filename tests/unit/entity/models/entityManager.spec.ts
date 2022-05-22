@@ -16,7 +16,7 @@ describe('EntityManager', () => {
     insert = jest.fn();
     findOne = jest.fn();
     findOneBy = jest.fn();
-    const repository = ({ insert, findOneBy, findOne } as unknown) as Repository<Entity>;
+    const repository = { insert, findOneBy, findOne } as unknown as Repository<Entity>;
     entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
   });
 
@@ -90,7 +90,7 @@ describe('EntityManager', () => {
     let findOneBy: jest.Mock;
     beforeEach(() => {
       findOneBy = jest.fn();
-      const repository = ({ findOneBy } as unknown) as Repository<Entity>;
+      const repository = { findOneBy } as unknown as Repository<Entity>;
       entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
@@ -130,7 +130,7 @@ describe('EntityManager', () => {
     beforeEach(() => {
       findOneBy = jest.fn();
       deleteEntity = jest.fn();
-      const repository = ({ findOneBy, delete: deleteEntity } as unknown) as Repository<Entity>;
+      const repository = { findOneBy, delete: deleteEntity } as unknown as Repository<Entity>;
       entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
@@ -172,7 +172,7 @@ describe('EntityManager', () => {
     beforeEach(() => {
       findByIds = jest.fn();
       deleteEntity = jest.fn();
-      const repository = ({ findByIds, delete: deleteEntity } as unknown) as Repository<Entity>;
+      const repository = { findByIds, delete: deleteEntity } as unknown as Repository<Entity>;
       entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
