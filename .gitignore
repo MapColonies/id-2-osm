@@ -105,3 +105,6 @@ dist
 .tern-port
 
 reports
+
+/**/local.json
+/**/myvalues.yaml
