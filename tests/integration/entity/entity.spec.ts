@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { Application } from 'express';
 import { QueryFailedError } from 'typeorm';
 import { registerTestValues } from '../testContainerConfig';
