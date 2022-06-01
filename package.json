@@ -67,6 +67,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.0.2",
     "@commitlint/config-conventional": "^17.0.2",
+    "@faker-js/faker": "^7.1.0",
     "@map-colonies/eslint-config": "^3.1.1",
     "@map-colonies/prettier-config": "0.0.1",
     "@map-colonies/standard-version-update-helm-version": "^2.0.1",
