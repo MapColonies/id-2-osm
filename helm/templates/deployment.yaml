@@ -14,6 +14,10 @@ metadata:
     environment: {{ include "id-2-osm.environment" . }}
     release: {{ $releaseName }}
     {{- include "id-2-osm.labels" . | nindent 4 }}
+{{- with .Values.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -29,6 +33,10 @@ spec:
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
         {{- include "id-2-osm.selectorLabels" . | nindent 8 }}
+      annotations:
+{{- with .Values.podAnnotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
