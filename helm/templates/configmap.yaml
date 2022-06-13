@@ -24,6 +24,7 @@ data:
   {{ if .Values.global.tracing.enabled }}
   TELEMETRY_TRACING_ENABLED: 'true'
   TELEMETRY_TRACING_URL: {{ $tracingUrl }}
+  TELEMETRY_TRACING_RATIO: {{ .Values.env.tracing.ratio | quote }}
   {{ end }}
   {{ if .Values.global.metrics.enabled }}
   TELEMETRY_METRICS_ENABLED: 'true'
