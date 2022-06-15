@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/MapColonies/id-2-osm/compare/v2.0.0...v2.1.0) (2022-06-15)
+
+
+### Features
+
+* add pg connection name ([#105](https://github.com/MapColonies/id-2-osm/issues/105)) ([c513a11](https://github.com/MapColonies/id-2-osm/commit/c513a117b7f5a7554fdbcc900eee20b8d7e50eeb))
+* **helm:** added route timeout ([#113](https://github.com/MapColonies/id-2-osm/issues/113)) ([bf280c7](https://github.com/MapColonies/id-2-osm/commit/bf280c7dba4d3179b9969dd93f5138800ac818a5))
+
+
+### Bug Fixes
+
+* broken typeorm datasource file ([#151](https://github.com/MapColonies/id-2-osm/issues/151)) ([495d9f4](https://github.com/MapColonies/id-2-osm/commit/495d9f459b1d25416021283670e8af423280bd04))
+* **configurations:** helm helpers nesting for metrics and tracing ([#107](https://github.com/MapColonies/id-2-osm/issues/107)) ([6d8a8ed](https://github.com/MapColonies/id-2-osm/commit/6d8a8ed3838c3b5c9a2ef2ea3568b8157d9f8613))
+
 ## [2.0.0](https://github.com/MapColonies/id-2-osm/compare/v1.5.1...v2.0.0) (2021-08-18)
 
 
