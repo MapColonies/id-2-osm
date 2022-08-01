@@ -17,5 +17,5 @@ spec:
     kind: Service
     name: {{ $releaseName }}-{{ $chartName }}
   tls:
-    termination: edge
+    termination: {{ .Values.route.tls.termination }}
 {{- end -}}
