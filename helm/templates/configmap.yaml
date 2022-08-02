@@ -10,6 +10,7 @@ metadata:
 data:
   REQUEST_PAYLOAD_LIMIT: {{ .Values.env.requestPayloadLimit | quote }}
   RESPONSE_COMPRESSION_ENABLED: {{ .Values.env.responseCompressionEnabled | quote }}
+  LOG_PRETTY_PRINT_ENABLED: 'false'
   LOG_LEVEL: {{ .Values.env.logLevel | quote }}
   DB_HOST: {{ .Values.dbConfig.host }}
   DB_NAME: {{ .Values.dbConfig.database }}

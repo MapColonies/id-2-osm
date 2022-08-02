@@ -20,6 +20,7 @@ image:
   repository: id-2-osm
   # Overrides the image tag whose default is the chart appVersion.
   # tag: 'latest'
+  pullPolicy: Always
 
 env:
   port: 8080
@@ -62,6 +63,8 @@ resources:
 route:
   enabled: true
   path: /
+  tls:
+    termination: edge
   timeout:
     enabled: false # defaults to 30s by openshift
     duration: 60s # supported units (us, ms, s, m, h, d)
