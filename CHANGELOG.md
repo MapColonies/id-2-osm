@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.2](https://github.com/MapColonies/id-2-osm/compare/v2.1.1...v2.1.2) (2022-08-14)
+
+
+### Bug Fixes
+
+* **configurations:** fixed helm version ([3a9462b](https://github.com/MapColonies/id-2-osm/commit/3a9462baf3d06d25bc98f5fd5b25668f51703bba))
+* helm changes ([#154](https://github.com/MapColonies/id-2-osm/issues/154)) ([4edc36b](https://github.com/MapColonies/id-2-osm/commit/4edc36b6b80aefb2fce6ec024409fa790879e462))
+
 ### [2.1.1](https://github.com/MapColonies/id-2-osm/compare/v2.1.0...v2.1.1) (2022-06-15)
 
 ## [2.1.0](https://github.com/MapColonies/id-2-osm/compare/v2.0.0...v2.1.0) (2022-06-15)
