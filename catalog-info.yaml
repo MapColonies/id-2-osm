@@ -7,6 +7,8 @@ metadata:
   - url: https://mapcolonies.atlassian.net/wiki/spaces/MAPConflicResolution/pages/1353613504/Ingestion#Details-about-our-services
     title: Confluence 
     icon: Article
+  annotations:
+    github.com/project-slug: MapColonies/id-2-osm
 spec:
   type: service
   lifecycle: production
