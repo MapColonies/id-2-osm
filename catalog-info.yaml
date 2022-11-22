@@ -3,6 +3,10 @@ kind: Component
 metadata:
   name: id-2-osm
   description: Mapping between entity IDs and OSM IDs
+  links:
+  - url: https://mapcolonies.atlassian.net/wiki/spaces/MAPConflicResolution/pages/1353613504/Ingestion#Details-about-our-services
+    title: Confluence 
+    icon: Article
 spec:
   type: service
   lifecycle: production
