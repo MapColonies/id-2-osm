@@ -1,0 +1,222 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: id-2-osm
+  description: Mapping between entity IDs and OSM IDs
+spec:
+  type: service
+  lifecycle: production
+  owner: vector-team
+  system: ingestion
+  dependsOn:
+    - resource:default/id-2-osm-db
+  providesApis:
+    - id-2-osm-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: id-2-osm-api
+  description: ID 2 OSM service API 
+spec:
+  type: openapi
+  lifecycle: production
+  owner: vector-team
+  system: ingestion
+  definition: |
+    openapi: 3.0.1
+    info:
+      title: id-2-osm
+      description: Service to retrieve mapping
+      version: 2.1.2
+      license:
+        name: MIT
+        url: https://opensource.org/licenses/MIT
+    paths:
+      /entity:
+        post:
+          operationId: add-entity
+          summary: Add a new external entity to the id mapping
+          tags:
+            - entity
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Entity'
+          responses:
+            '201':
+              description: Created
+            '400':
+              $ref: '#/components/responses/BadRequest'
+            '422':
+              $ref: '#/components/responses/UnprocessableEntity'
+            5XX:
+              $ref: '#/components/responses/UnexpectedError'
+      /entity/bulk:
+        post:
+          operationId: add-or-delete-bulk-entities
+          summary: Entity bulk operation
+          tags:
+            - entity
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  oneOf:
+                    - $ref: '#/components/schemas/BulkCreateRequest'
+                    - $ref: '#/components/schemas/BulkDeleteRequest'
+          responses:
+            '200':
+              description: Operation was successful
+            '400':
+              $ref: '#/components/responses/BadRequest'
+            '422':
+              $ref: '#/components/responses/UnprocessableEntity'
+            5XX:
+              $ref: '#/components/responses/UnexpectedError'
+      /entity/{externalId}:
+        get:
+          operationId: get-entity-by-externalId
+          summary: Get the entity by external id
+          tags:
+            - entity
+          parameters:
+            - $ref: '#/components/parameters/externalId'
+          responses:
+            '200':
+              description: The entity
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Entity'
+                text/plain:
+                  schema:
+                    $ref: '#/components/schemas/OsmId'
+            '400':
+              $ref: '#/components/responses/BadRequest'
+            '404':
+              $ref: '#/components/responses/NotFound'
+            5XX:
+              $ref: '#/components/responses/UnexpectedError'
+        delete:
+          operationId: delete-entity
+          summary: Remove an entity
+          tags:
+            - entity
+          parameters:
+            - $ref: '#/components/parameters/externalId'
+          responses:
+            '204':
+              description: Deleted
+            '400':
+              $ref: '#/components/responses/BadRequest'
+            '404':
+              $ref: '#/components/responses/NotFound'
+            5XX:
+              $ref: '#/components/responses/UnexpectedError'
+    components:
+      parameters:
+        externalId:
+          in: path
+          name: externalId
+          required: true
+          schema:
+            $ref: '#/components/schemas/ExternalId'
+          description: the external id
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      responses:
+        BadRequest:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        NotFound:
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        UnexpectedError:
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        UnprocessableEntity:
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      schemas:
+        Error:
+          type: object
+          properties:
+            message:
+              type: string
+        OsmId:
+          type: integer
+          format: int64
+          minimum: 0
+          example: 1337
+          exclusiveMinimum: true
+        ExternalId:
+          type: string
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          minLength: 1
+          maxLength: 68
+        Entity:
+          type: object
+          required:
+            - externalId
+            - osmId
+          properties:
+            externalId:
+              $ref: '#/components/schemas/ExternalId'
+            osmId:
+              $ref: '#/components/schemas/OsmId'
+        BulkDeleteRequest:
+          type: object
+          required:
+            - action
+            - payload
+          properties:
+            action:
+              type: string
+              enum:
+                - delete
+            payload:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/ExternalId'
+        BulkCreateRequest:
+          type: object
+          required:
+            - action
+            - payload
+          properties:
+            action:
+              type: string
+              enum:
+                - create
+            payload:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/Entity'
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: id-2-osm-db
+  description: Stores entities details
+  labels:
+    db-type: postgres
+spec:
+  type: database
+  owner: vector-team
+  system: ingestion
