@@ -13,7 +13,7 @@ spec:
   type: service
   lifecycle: production
   owner: vector-team
-  system: ingestion
+  system: vector-ingestion
   dependsOn:
     - resource:default/id-2-osm-db
   providesApis:
@@ -28,7 +28,7 @@ spec:
   type: openapi
   lifecycle: production
   owner: vector-team
-  system: ingestion
+  system: vector-ingestion
   definition: |
     openapi: 3.0.1
     info:
@@ -225,4 +225,4 @@ metadata:
 spec:
   type: database
   owner: vector-team
-  system: ingestion
+  system: vector-ingestion
