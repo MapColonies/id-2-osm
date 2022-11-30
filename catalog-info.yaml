@@ -9,6 +9,10 @@ metadata:
     icon: Article
   annotations:
     github.com/project-slug: MapColonies/id-2-osm
+  tags: 
+    - Node.js
+    - TypeScript
+    - Express.js
 spec:
   type: service
   lifecycle: production
@@ -220,8 +224,8 @@ kind: Resource
 metadata:
   name: id-2-osm-db
   description: Stores entities details
-  labels:
-    db-type: postgres
+  tags:
+   - PostgreSQL
 spec:
   type: database
   owner: vector-team
