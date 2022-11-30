@@ -10,9 +10,9 @@ metadata:
   annotations:
     github.com/project-slug: MapColonies/id-2-osm
   tags: 
-    - Node.js
+    - Nodejs
     - TypeScript
-    - Express.js
+    - Expressjs
 spec:
   type: service
   lifecycle: production
