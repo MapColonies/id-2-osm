@@ -10,9 +10,9 @@ metadata:
   annotations:
     github.com/project-slug: MapColonies/id-2-osm
   tags: 
-    - Nodejs
-    - TypeScript
-    - Expressjs
+    - nodejs
+    - typescript
+    - expressjs
 spec:
   type: service
   lifecycle: production
@@ -225,7 +225,7 @@ metadata:
   name: id-2-osm-db
   description: Stores entities details
   tags:
-   - PostgreSQL
+   - postgresql
 spec:
   type: database
   owner: vector-team
