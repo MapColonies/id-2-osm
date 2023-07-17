@@ -14,6 +14,7 @@ podAnnotations: {}
 
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
+  imagePullSecretName: 'my-registry-secret'
   flavor: openshift
 
 image:
