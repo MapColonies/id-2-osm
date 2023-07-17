@@ -2,6 +2,7 @@
 {{- $chartName := include "id-2-osm.name" . -}}
 {{- $cloudProviderFlavor := include "id-2-osm.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "id-2-osm.cloudProviderDockerRegistryUrl" . -}}
+{{- $cloudProviderImagePullSecretName := include "id-2-osm.cloudProviderImagePullSecretName" . -}}
 {{- $tag := include "id-2-osm.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
@@ -38,6 +39,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+    {{- if $cloudProviderImagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ $cloudProviderImagePullSecretName | quote }}
+    {{- end }}  
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}

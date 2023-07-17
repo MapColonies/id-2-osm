@@ -9,7 +9,7 @@ metadata:
     icon: Article
   annotations:
     github.com/project-slug: MapColonies/id-2-osm
-  tags: 
+  tags:
     - nodejs
     - typescript
     - expressjs
