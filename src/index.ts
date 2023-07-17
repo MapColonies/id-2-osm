@@ -1,4 +1,4 @@
-// this import must be called before the first import of tsyring
+// this import must be called before the first import of tsyringe
 import 'reflect-metadata';
 import './common/tracing';
 import http from 'http';
