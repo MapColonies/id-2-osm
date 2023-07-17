@@ -17,6 +17,9 @@ cloudProvider:
   imagePullSecretName: 'my-registry-secret'
   flavor: openshift
 
+caSecretName: ''
+caKey: 'ca.crt'
+
 image:
   repository: id-2-osm
   # Overrides the image tag whose default is the chart appVersion.
