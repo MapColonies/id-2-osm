@@ -33,7 +33,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHaveProperty('message', "request.body should have required property 'osmId'");
+        expect(response.body).toHaveProperty('message', "request/body must have required property 'osmId'");
       });
 
       it('should return 400 status code and error message if osm id is not valid', async function () {
@@ -41,7 +41,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHaveProperty('message', 'request.body.osmId should be integer');
+        expect(response.body).toHaveProperty('message', 'request/body/osmId must be integer');
       });
 
       it('should return 400 status code and error message if external id is missing', async function () {
@@ -49,7 +49,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHaveProperty('message', "request.body should have required property 'externalId'");
+        expect(response.body).toHaveProperty('message', "request/body must have required property 'externalId'");
       });
 
       it('should return 400 status code and error message if external id is not valid', async function () {
@@ -57,7 +57,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHaveProperty('message', 'request.body.externalId should be string');
+        expect(response.body).toHaveProperty('message', 'request/body/externalId must be string');
       });
     });
 
@@ -99,7 +99,7 @@ describe('entity', function () {
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHavePropertyThatContains('message', `request.body.payload[0] should have required property 'osmId'`);
+        expect(response.body).toHavePropertyThatContains('message', `request/body/payload/0 must have required property 'osmId'`);
       });
 
       it('should return 400 status code and error message if osm id is not valid', async function () {
@@ -108,7 +108,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0].osmId should be integer');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload/0/osmId must be integer');
       });
 
       it('should return 400 status code and error message if external id is missing', async function () {
@@ -117,7 +117,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHavePropertyThatContains('message', "request.body.payload[0] should have required property 'externalId'");
+        expect(response.body).toHavePropertyThatContains('message', "request/body/payload/0 must have required property 'externalId'");
       });
 
       it('should return 400 status code and error message if external id is not valid', async function () {
@@ -126,7 +126,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0].externalId should be string');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload/0/externalId must be string');
       });
 
       it('should return 400 status code and error message if action is delete', async function () {
@@ -135,7 +135,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0] should be string');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload/0 must be string');
       });
 
       it('should return 400 status code and error message if action is invalid', async function () {
@@ -144,7 +144,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.action should be equal to one of the allowed values');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/action must be equal to one of the allowed values: create');
       });
 
       it('should return 400 status code and error message if payload is empty', async function () {
@@ -152,7 +152,7 @@ describe('entity', function () {
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload should NOT have fewer than 1 items');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload must NOT have fewer than 1 items');
       });
     });
 
@@ -196,7 +196,7 @@ describe('entity', function () {
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0] should NOT be longer than 68 characters');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload/0 must NOT have more than 68 characters');
       });
 
       it('should return 400 status code and error message if external id is not valid', async function () {
@@ -204,7 +204,7 @@ describe('entity', function () {
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0] should be string');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload/0 must be string');
       });
 
       it('should return 400 status code and error message if action is create', async function () {
@@ -213,7 +213,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload[0] should be object');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload/0 must be object');
       });
 
       it('should return 400 status code and error message if action is invalid', async function () {
@@ -222,7 +222,7 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
 
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.action should be equal to one of the allowed values');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/action must be equal to one of the allowed values: delete');
       });
 
       it('should return 400 status code and error message if payload is empty', async function () {
@@ -230,7 +230,7 @@ describe('entity', function () {
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHavePropertyThatContains('message', 'request.body.payload should NOT have fewer than 1 items');
+        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload must NOT have fewer than 1 items');
       });
     });
     describe('Sad Path 😥', function () {
@@ -281,7 +281,7 @@ describe('entity', function () {
           const response = await requestSender.getEntity(app, faker.random.alphaNumeric(69));
 
           expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-          expect(response.body).toHaveProperty('message', 'request.params.externalId should NOT be longer than 68 characters');
+          expect(response.body).toHaveProperty('message', 'request/params/externalId must NOT have more than 68 characters');
         });
       });
 
@@ -319,7 +319,7 @@ describe('entity', function () {
         const response = await requestSender.deleteEntity(app, faker.random.alphaNumeric(69));
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', 'request.params.externalId should NOT be longer than 68 characters');
+        expect(response.body).toHaveProperty('message', 'request/params/externalId must NOT have more than 68 characters');
       });
     });
     describe('Sad Path 😥', function () {
