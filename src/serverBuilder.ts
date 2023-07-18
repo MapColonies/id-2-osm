@@ -36,7 +36,7 @@ export class ServerBuilder {
   private buildDocsRoutes(): void {
     const openapiRouter = new OpenapiViewerRouter({
       ...this.config.get<OpenapiRouterConfig>('openapiConfig'),
-      filePath: this.config.get<string>('openapiConfig.filePath'),
+      filePathOrSpec: this.config.get<string>('openapiConfig.filePath'),
     });
     openapiRouter.setup();
     this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
