@@ -16,7 +16,10 @@ import { entityRouterFactory } from './entity/routes/entityRouter';
 export class ServerBuilder {
   private readonly serverInstance: express.Application;
 
-  public constructor(@inject(SERVICES.CONFIG) private readonly config: IConfig, @inject(SERVICES.LOGGER) private readonly logger: Logger) {
+  public constructor(
+    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.LOGGER) private readonly logger: Logger
+  ) {
     this.serverInstance = express();
   }
 

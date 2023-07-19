@@ -4,9 +4,9 @@ metadata:
   name: id-2-osm
   description: Mapping between entity IDs and OSM IDs
   links:
-  - url: https://mapcolonies.atlassian.net/wiki/spaces/MAPConflicResolution/pages/1353613504/Ingestion#Details-about-our-services
-    title: Confluence 
-    icon: Article
+    - url: https://mapcolonies.atlassian.net/wiki/spaces/MAPConflicResolution/pages/1353613504/Ingestion#Details-about-our-services
+      title: Confluence
+      icon: Article
   annotations:
     github.com/project-slug: MapColonies/id-2-osm
   tags:
@@ -27,7 +27,7 @@ apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
   name: id-2-osm-api
-  description: ID 2 OSM service API 
+  description: ID 2 OSM service API
 spec:
   type: openapi
   lifecycle: production
@@ -225,7 +225,7 @@ metadata:
   name: id-2-osm-db
   description: Stores entities details
   tags:
-   - postgresql
+    - postgresql
 spec:
   type: database
   owner: vector-team
