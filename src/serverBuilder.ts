@@ -1,7 +1,7 @@
-import express from 'express';
+import express, { Router } from 'express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import { container, inject, injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
 import { OpenapiRouterConfig, OpenapiViewerRouter } from '@map-colonies/openapi-express-viewer';
@@ -10,7 +10,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
 import { SERVICES } from './common/constants';
 import { IConfig } from './common/interfaces';
-import { entityRouterFactory } from './entity/routes/entityRouter';
+import { ENTITY_ROUTER_SYMBOL } from './entity/routes/entityRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -18,7 +18,8 @@ export class ServerBuilder {
 
   public constructor(
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
-    @inject(SERVICES.LOGGER) private readonly logger: Logger
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(ENTITY_ROUTER_SYMBOL) private readonly entityRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -32,8 +33,8 @@ export class ServerBuilder {
   }
 
   private buildRoutes(): void {
+    this.serverInstance.use('/entity', this.entityRouter);
     this.buildDocsRoutes();
-    this.serverInstance.use('/entity', entityRouterFactory(container));
   }
 
   private buildDocsRoutes(): void {
