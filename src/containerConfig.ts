@@ -13,6 +13,7 @@ import { initConnection } from './common/db/connection';
 import { tracing } from './common/tracing';
 import { entityRouterFactory, ENTITY_ROUTER_SYMBOL } from './entity/routes/entityRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
+import { container } from 'tsyringe';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -50,8 +51,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.CONFIG, provider: { useValue: config } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
-    { token: SERVICES.HEALTHCHECK, provider: { useValue: healthCheck(connection) } },
     { token: DataSource, provider: { useValue: connection } },
+    { token: SERVICES.HEALTHCHECK, provider: { useValue: healthCheck(connection) } },
     { token: 'EntityRepository', provider: { useValue: connection.getRepository(Entity) } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
     { token: ENTITY_ROUTER_SYMBOL, provider: { useFactory: entityRouterFactory } },

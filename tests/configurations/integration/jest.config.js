@@ -8,9 +8,9 @@ module.exports = {
   rootDir: '../../../.',
   testMatch: ['<rootDir>/tests/integration/**/*.spec.ts'],
   setupFiles: ['<rootDir>/tests/configurations/jest.setup.ts'],
-  // setupFilesAfterEnv: ['jest-openapi', '<rootDir>/tests/configurations/initJestOpenapi.setup.ts'],
+  setupFilesAfterEnv: ['jest-openapi', '<rootDir>/tests/configurations/initJestOpenapi.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/tests/matchers.js'],
-  globalTeardown: '<rootDir>/tests/configurations/integration/jest.teardown.js',
+  globalTeardown: '<rootDir>/tests/configurations/integration/jest.teardown.ts',
   reporters: [
     'default',
     [

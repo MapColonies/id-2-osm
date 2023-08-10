@@ -48,19 +48,17 @@ export class ServerBuilder {
 
   private registerPreRoutesMiddleware(): void {
     this.serverInstance.use('/metrics', defaultMetricsMiddleware());
+    this.serverInstance.use(httpLogger({ logger: this.logger }));
 
     if (this.config.get<boolean>('server.response.compression.enabled')) {
       this.serverInstance.use(compression(this.config.get<compression.CompressionFilter>('server.response.compression.options')));
     }
     this.serverInstance.use(express.json(this.config.get<bodyParser.Options>('server.request.payload')));
-    this.serverInstance.use(httpLogger({ logger: this.logger }));
     this.serverInstance.use(getTraceContexHeaderMiddleware());
 
     const ignorePathRegex = new RegExp(`^${this.config.get<string>('openapiConfig.basePath')}/.*`, 'i');
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');
     this.serverInstance.use(OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex }));
-
-    this.registerPostRoutesMiddleware();
   }
 
   private registerPostRoutesMiddleware(): void {
