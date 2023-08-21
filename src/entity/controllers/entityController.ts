@@ -35,10 +35,7 @@ type PostBulkEntitiesHandler = RequestHandler<undefined, undefined, BulkRequestB
 type DeleteEntityHandler = RequestHandler<EntityParams>;
 @injectable()
 export class EntityController {
-  public constructor(
-    @inject(EntityManager) private readonly manager: EntityManager,
-    @inject(SERVICES.LOGGER) private readonly logger: Logger
-  ) {}
+  public constructor(@inject(EntityManager) private readonly manager: EntityManager, @inject(SERVICES.LOGGER) private readonly logger: Logger) {}
 
   public get: GetEntityHandler = async (req, res, next) => {
     const { externalId } = req.params;
