@@ -32,6 +32,7 @@ env:
   targetPort: 8080
   protocol: TCP
   logLevel: info
+  projectName: default
   requestPayloadLimit: 1mb
   responseCompressionEnabled: true
   tracing:

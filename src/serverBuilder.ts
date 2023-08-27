@@ -7,10 +7,12 @@ import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
 import { OpenapiRouterConfig, OpenapiViewerRouter } from '@map-colonies/openapi-express-viewer';
 import httpLogger from '@map-colonies/express-access-log-middleware';
 import { Logger } from '@map-colonies/js-logger';
+import { metricsMiddleware } from '@map-colonies/telemetry';
 import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
-import { SERVICES } from './common/constants';
+import { SERVICES, METRICS_REGISTRY } from './common/constants';
 import { IConfig } from './common/interfaces';
 import { ENTITY_ROUTER_SYMBOL } from './entity/routes/entityRouter';
+import { Registry } from 'prom-client';
 
 @injectable()
 export class ServerBuilder {
@@ -19,7 +21,8 @@ export class ServerBuilder {
   public constructor(
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(ENTITY_ROUTER_SYMBOL) private readonly entityRouter: Router
+    @inject(ENTITY_ROUTER_SYMBOL) private readonly entityRouter: Router,
+    @inject(METRICS_REGISTRY) private readonly metricsRegistry?: Registry
   ) {
     this.serverInstance = express();
   }
@@ -47,7 +50,9 @@ export class ServerBuilder {
   }
 
   private registerPreRoutesMiddleware(): void {
-    this.serverInstance.use('/metrics', defaultMetricsMiddleware());
+    if (this.metricsRegistry) {
+      this.serverInstance.use('/metrics', metricsMiddleware(this.metricsRegistry));
+    }
     this.serverInstance.use(httpLogger({ logger: this.logger }));
 
     if (this.config.get<boolean>('server.response.compression.enabled')) {

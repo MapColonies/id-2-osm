@@ -4,8 +4,9 @@ import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { getOtelMixin, Metrics } from '@map-colonies/telemetry';
 import { HealthCheck } from '@godaddy/terminus';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
+import client from 'prom-client';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
-import { SERVICES, SERVICE_NAME, DB_CONNECTION_TIMEOUT, CONNECTION } from './common/constants';
+import { SERVICES, SERVICE_NAME, DB_CONNECTION_TIMEOUT, CONNECTION, METRICS_REGISTRY } from './common/constants';
 import { Entity } from './entity/models/entity';
 import { promiseTimeout } from './common/utils/promiseTimeout';
 import { DbConfig } from './common/interfaces';
@@ -55,6 +56,17 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.CONFIG, provider: { useValue: config } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
+    {
+      token: METRICS_REGISTRY,
+      provider: {
+        useFactory: instancePerContainerCachingFactory((container) => {
+          const config = container.resolve<IConfig>(SERVICES.CONFIG);
+
+          client.register.setDefaultLabels({ project: config.get<string>('app.projectName') });
+          return client.register;
+        }),
+      },
+    },
     // { token: CONNECTION, provider: { useFactory: instanceCachingFactory(async (): Promise<DataSource> => await initConnection(connectionOptions)) } },
     {
       token: CONNECTION,
