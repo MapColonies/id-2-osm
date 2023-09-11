@@ -1,10 +1,11 @@
 import config, { IConfig } from 'config';
 import { ConnectionOptionsReader, DataSource } from 'typeorm';
+import { container, instanceCachingFactory, instancePerContainerCachingFactory } from 'tsyringe';
+import client from 'prom-client';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { getOtelMixin, Metrics } from '@map-colonies/telemetry';
 import { HealthCheck } from '@godaddy/terminus';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
-import client from 'prom-client';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { SERVICES, SERVICE_NAME, DB_CONNECTION_TIMEOUT, CONNECTION, METRICS_REGISTRY } from './common/constants';
 import { Entity } from './entity/models/entity';
@@ -14,7 +15,6 @@ import { initConnection } from './common/db/connection';
 import { tracing } from './common/tracing';
 import { entityRouterFactory, ENTITY_ROUTER_SYMBOL } from './entity/routes/entityRouter';
 import { InjectionObject, Providers, registerDependencies } from './common/dependencyRegistration';
-import { container, instanceCachingFactory, instancePerContainerCachingFactory } from 'tsyringe';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
