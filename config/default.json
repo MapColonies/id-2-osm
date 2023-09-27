@@ -9,6 +9,10 @@
     "logger": {
       "level": "info",
       "prettyPrint": false
+    },
+    "metrics": {
+      "enabled": true,
+      "buckets": [0.1, 0.5, 1, 5, 15, 50, 250, 500]
     }
   },
   "server": {
@@ -24,6 +28,9 @@
         "options": null
       }
     }
+  },
+  "app": {
+    "projectName": "default"
   },
   "db": {
     "type": "postgres",

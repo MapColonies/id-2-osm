@@ -4,7 +4,15 @@ tests
 .github
 coverage
 node_modules
-.prettierrc.json
 commitlint.config.json
 README.md
 *Dockerfile
+.prettier*
+.npmrc
+.redocly.yaml
+tsconfig.lint.json
+.nvmrc
+.git*
+dist
+build
+reports

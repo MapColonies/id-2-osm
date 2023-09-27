@@ -16,3 +16,6 @@ export const SERVICES: Record<string, symbol> = {
   HEALTHCHECK: Symbol('HEALTHCHECK'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */
+
+export const CONNECTION = Symbol('connection');
+export const METRICS_REGISTRY = Symbol('MetricsRegistry');

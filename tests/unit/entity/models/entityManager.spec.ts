@@ -1,5 +1,6 @@
 import jsLogger from '@map-colonies/js-logger';
 import { QueryFailedError, Repository } from 'typeorm';
+import client from 'prom-client';
 import { Entity } from '../../../../src/entity/models/entity';
 import { EntityManager } from '../../../../src/entity/models/entityManager';
 import { IdAlreadyExistsError } from '../../../../src/entity/models/errors';
@@ -17,7 +18,7 @@ describe('EntityManager', () => {
     findOne = jest.fn();
     findOneBy = jest.fn();
     const repository = { insert, findOneBy, findOne } as unknown as Repository<Entity>;
-    entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
+    entityManager = new EntityManager(repository, jsLogger({ enabled: false }), new client.Registry());
   });
 
   afterEach(() => {
@@ -91,7 +92,7 @@ describe('EntityManager', () => {
     beforeEach(() => {
       findOneBy = jest.fn();
       const repository = { findOneBy } as unknown as Repository<Entity>;
-      entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
+      entityManager = new EntityManager(repository, jsLogger({ enabled: false }), new client.Registry());
     });
     afterEach(() => {
       findOneBy.mockClear();
@@ -131,7 +132,7 @@ describe('EntityManager', () => {
       findOneBy = jest.fn();
       deleteEntity = jest.fn();
       const repository = { findOneBy, delete: deleteEntity } as unknown as Repository<Entity>;
-      entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
+      entityManager = new EntityManager(repository, jsLogger({ enabled: false }), new client.Registry());
     });
     afterEach(() => {
       findOneBy.mockClear();
@@ -173,7 +174,7 @@ describe('EntityManager', () => {
       findByIds = jest.fn();
       deleteEntity = jest.fn();
       const repository = { findByIds, delete: deleteEntity } as unknown as Repository<Entity>;
-      entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
+      entityManager = new EntityManager(repository, jsLogger({ enabled: false }), new client.Registry());
     });
     afterEach(() => {
       findByIds.mockClear();

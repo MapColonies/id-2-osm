@@ -14,7 +14,12 @@ podAnnotations: {}
 
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
+  imagePullSecretName: 'my-registry-secret'
   flavor: openshift
+
+caSecretName: ''
+caPath: '/usr/local/share/ca-certificates'
+caKey: 'ca.crt'
 
 image:
   repository: id-2-osm
@@ -27,6 +32,7 @@ env:
   targetPort: 8080
   protocol: TCP
   logLevel: info
+  projectName: default
   requestPayloadLimit: 1mb
   responseCompressionEnabled: true
   tracing:
@@ -51,7 +57,7 @@ dbConfig:
     caFileName: root.crt
 
 resources:
-  enabled: false
+  enabled: true
   value:
     limits:
       cpu: 100m
