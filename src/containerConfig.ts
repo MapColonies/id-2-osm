@@ -1,6 +1,6 @@
 import config, { IConfig } from 'config';
-import { ConnectionOptionsReader, DataSource } from 'typeorm';
-import { container, instanceCachingFactory, instancePerContainerCachingFactory } from 'tsyringe';
+import { DataSource } from 'typeorm';
+import { instancePerContainerCachingFactory } from 'tsyringe';
 import client from 'prom-client';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { getOtelMixin, Metrics } from '@map-colonies/telemetry';
@@ -32,21 +32,16 @@ const healthCheck = (connection: DataSource): HealthCheck => {
 
 const beforeShutdown = (connection: DataSource): (() => Promise<void>) => {
   return async (): Promise<void> => {
-    await connection.close();
+    connection.destroy;
   };
 };
-
-// function connectRepositoryFactory(){
-//   return (connection: ): unknown =>
-//   connection.getRepository(Entity)
-// }
 
 export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   const logger = jsLogger({ ...loggerConfig, mixin: getOtelMixin() });
 
   const connectionOptions = config.get<DbConfig>('db');
-  const connection = await initConnection(connectionOptions);
+  const connection = await initConnection({ entities: ['entity/models/*.js'], ...connectionOptions });
 
   const metrics = new Metrics();
   metrics.start();
@@ -67,28 +62,17 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         }),
       },
     },
-    // { token: CONNECTION, provider: { useFactory: instanceCachingFactory(async (): Promise<DataSource> => await initConnection(connectionOptions)) } },
     {
       token: CONNECTION,
       provider: {
         useFactory: instancePerContainerCachingFactory(async (container) => {
           const config = container.resolve<IConfig>(SERVICES.CONFIG);
           const connectionOptions = config.get<DbConfig>('db');
-          await initConnection(connectionOptions);
+          await initConnection({ entities: ['entity/models/*.js'], ...connectionOptions });
         }),
       },
     },
     { token: DataSource, provider: { useValue: connection } },
-    // {
-    //   token: DataSource,
-    //   provider: {
-    //     useFactory: instancePerContainerCachingFactory((container) => {
-    //       const connection = container.resolve<DataSource>(CONNECTION);
-    //       return connection;
-    //     }),
-    //   },
-    // },
-    // { token: SERVICES.HEALTHCHECK, provider: { useValue: healthCheck(connection) } },
     {
       token: SERVICES.HEALTHCHECK,
       provider: {
@@ -99,28 +83,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       },
     },
     { token: 'EntityRepository', provider: { useValue: connection.getRepository(Entity) } },
-    // { token: 'EntityRepository', provider: { useFactory: connectRepositoryFactory(), deps:[CONNECTION] } },
-    // {
-    //   token: 'EntityRepository',
-    //   provider: {
-    //     useFactory: instancePerContainerCachingFactory((container) => {
-    //       const connection = container.resolve<DataSource>(CONNECTION);
-    //       return connection.getRepository(Entity);
-    //     }),
-    //   },
-    // },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
     { token: ENTITY_ROUTER_SYMBOL, provider: { useFactory: entityRouterFactory } },
-    // {
-    //   token: 'onSignal',
-    //   provider: {
-    //     useValue: {
-    //       useValue: async (): Promise<void> => {
-    //         await Promise.all([tracing.stop(), metrics.stop(), beforeShutdown(connection)]);
-    //       },
-    //     },
-    //   },
-    // },
     {
       token: 'onSignal',
       provider: {
