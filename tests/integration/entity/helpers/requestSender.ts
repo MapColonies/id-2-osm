@@ -2,13 +2,14 @@ import config from 'config';
 import client from 'prom-client';
 import { Application } from 'express';
 import * as supertest from 'supertest';
+import { DependencyContainer } from 'tsyringe';
+import jsLogger from '@map-colonies/js-logger';
+import { trace } from '@opentelemetry/api';
+import { DataSource } from 'typeorm';
 import { getApp } from '../../../../src/app';
 import { DbConfig } from '../../../../src/common/interfaces';
 import { initConnection } from '../../../../src/common/db/connection';
-import jsLogger from '@map-colonies/js-logger';
-import { trace } from '@opentelemetry/api';
 import { SERVICES, METRICS_REGISTRY } from '../../../../src/common/constants';
-import { DataSource } from 'typeorm';
 import { Entity } from '../../../../src/entity/models/entity';
 
 export class EntityRequestSender {
@@ -31,10 +32,10 @@ export class EntityRequestSender {
     return supertest.agent(app).delete(`/entity/${externalId}`).set('Content-Type', 'application/json');
   }
 
-  public async getMockedRepoApp(repo: unknown) {
+  public async getMockedRepoApp(repo: unknown): Promise<Application> {
     const connectionOptions = config.get<DbConfig>('db');
     const connection = await initConnection({ entities: ['src/entity/models/*.ts'], ...connectionOptions });
-    connection.synchronize();
+    await connection.synchronize();
     const app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -48,10 +49,10 @@ export class EntityRequestSender {
     return app.app;
   }
 
-  public async getApp() {
+  public async getApp(): Promise<{ app: Application; container: DependencyContainer }> {
     const connectionOptions = config.get<DbConfig>('db');
     const connection = await initConnection({ entities: ['src/entity/models/*.ts'], ...connectionOptions });
-    connection.synchronize();
+    await connection.synchronize();
     const app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },

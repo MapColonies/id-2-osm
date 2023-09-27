@@ -8,11 +8,11 @@ import { OpenapiRouterConfig, OpenapiViewerRouter } from '@map-colonies/openapi-
 import httpLogger from '@map-colonies/express-access-log-middleware';
 import { Logger } from '@map-colonies/js-logger';
 import { metricsMiddleware } from '@map-colonies/telemetry';
-import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
+import { getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
+import { Registry } from 'prom-client';
 import { SERVICES, METRICS_REGISTRY } from './common/constants';
 import { IConfig } from './common/interfaces';
 import { ENTITY_ROUTER_SYMBOL } from './entity/routes/entityRouter';
-import { Registry } from 'prom-client';
 
 @injectable()
 export class ServerBuilder {

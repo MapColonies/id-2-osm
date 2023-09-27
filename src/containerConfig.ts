@@ -14,12 +14,7 @@ import { DbConfig } from './common/interfaces';
 import { initConnection } from './common/db/connection';
 import { tracing } from './common/tracing';
 import { entityRouterFactory, ENTITY_ROUTER_SYMBOL } from './entity/routes/entityRouter';
-import { InjectionObject, Providers, registerDependencies } from './common/dependencyRegistration';
-
-export interface RegisterOptions {
-  override?: InjectionObject<unknown>[];
-  useChild?: boolean;
-}
+import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
@@ -30,11 +25,10 @@ const healthCheck = (connection: DataSource): HealthCheck => {
   };
 };
 
-const beforeShutdown = (connection: DataSource): (() => Promise<void>) => {
-  return async (): Promise<void> => {
-    connection.destroy;
-  };
-};
+export interface RegisterOptions {
+  override?: InjectionObject<unknown>[];
+  useChild?: boolean;
+}
 
 export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
@@ -90,7 +84,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       provider: {
         useFactory: instancePerContainerCachingFactory(async (container): Promise<void> => {
           const connection = container.resolve<DataSource>(CONNECTION);
-          await Promise.all([tracing.stop(), metrics.stop(), beforeShutdown(connection)]);
+          await Promise.all([tracing.stop(), metrics.stop(), connection.destroy()]);
         }),
       },
     },

@@ -1,6 +1,6 @@
 import client from 'prom-client';
 import { Logger } from '@map-colonies/js-logger';
-import { inject, injectable, registry } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { In, Repository } from 'typeorm';
 import { METRICS_REGISTRY, SERVICES } from '../../common/constants';
 import { Entity, IEntity } from './entity';
@@ -127,7 +127,7 @@ export class EntityManager {
     await this.repository.delete(externalIds);
   }
 
-  public entitiesMetric(entityStatus: string, entities: Entity[]) {
+  public entitiesMetric(entityStatus: string, entities: Entity[]): void {
     for (let i = 0; i < entities.length; i++) {
       this.entityCounter.inc({ status: entityStatus, externalid: entities[i].externalId });
     }
