@@ -1,24 +1,24 @@
-// this import must be called before the first import of tsyring
+// this import must be called before the first import of tsyringe
 import 'reflect-metadata';
-import './common/tracing';
-import http from 'http';
-import { container } from 'tsyringe';
-import config from 'config';
-import { createTerminus, HealthCheck } from '@godaddy/terminus';
+import { createServer } from 'http';
+import { createTerminus } from '@godaddy/terminus';
 import { Logger } from '@map-colonies/js-logger';
-import { DEFAULT_SERVER_PORT, SERVICES } from './common/constants';
-import { IServerConfig } from './common/interfaces';
+import { container } from 'tsyringe';
+import { ON_SIGNAL, SERVICES } from '@common/constants';
+import { ConfigType } from '@common/config';
 import { getApp } from './app';
 
-const serverConfig = config.get<IServerConfig>('server');
-const port: number = parseInt(serverConfig.port) || DEFAULT_SERVER_PORT;
-
 void getApp()
-  .then((app) => {
+  .then(([app]) => {
     const logger = container.resolve<Logger>(SERVICES.LOGGER);
-    const healthCheck = container.resolve<HealthCheck>(SERVICES.HEALTHCHECK);
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const server = createTerminus(http.createServer(app), { healthChecks: { '/liveness': healthCheck, onSignal: container.resolve('onSignal') } });
+    const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+    const port = config.get('server.port');
+    const stubHealthCheck = async (): Promise<void> => Promise.resolve();
+    const server = createTerminus(createServer(app), {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      healthChecks: { '/liveness': stubHealthCheck },
+      onSignal: container.resolve(ON_SIGNAL),
+    });
 
     server.listen(port, () => {
       logger.info(`app started on port ${port}`);
@@ -26,5 +26,6 @@ void getApp()
   })
   .catch((error: Error) => {
     console.error('😢 - failed initializing the server');
-    console.error(error.message);
+    console.error(error);
+    process.exit(1);
   });
