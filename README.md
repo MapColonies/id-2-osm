@@ -1,90 +1,120 @@
-# id-2-osm
-----------------------------------
-
-![badge-alerts-lgtm](https://img.shields.io/lgtm/alerts/github/MapColonies/id-2-osm?style=for-the-badge)
-
-![grade-badge-lgtm](https://img.shields.io/lgtm/grade/javascript/github/MapColonies/id-2-osm?style=for-the-badge)
-
-![snyk](https://img.shields.io/snyk/vulnerabilities/github/MapColonies/id-2-osm?style=for-the-badge)
+# Map Colonies typescript service template
 
 ----------------------------------
 
+This is a basic repo template for building new MapColonies web services in Typescript.
 
-A RESTful API for saving and querying OSM entities external id's
+> [!IMPORTANT]
+> To regenerate the types on openapi change run the command `npm run generate:openapi-types`.
+
+## Development
+When in development you should use the command `npm run start:dev`. The main benefits are that it enables offline mode for the config package, and source map support for NodeJS errors.
+
+### Template Features:
+
+- eslint configuration by [@map-colonies/eslint-config](https://github.com/MapColonies/eslint-config)
+
+- prettier configuration by [@map-colonies/prettier-config](https://github.com/MapColonies/prettier-config)
+
+- jest
+
+- .nvmrc
+
+- Multi stage production-ready Dockerfile
+
+- commitlint
+
+- git hooks
+
+- logging by [@map-colonies/js-logger](https://github.com/MapColonies/js-logger)
+
+- OpenAPI request validation
+
+- config load with [node-config](https://www.npmjs.com/package/node-config)
+
+- Tracing and metrics by [@map-colonies/telemetry](https://github.com/MapColonies/telemetry)
+
+- github templates
+
+- bug report
+
+- feature request
+
+- pull request
+
+- github actions
+
+- on pull_request
+
+- LGTM
+
+- test
+
+- lint
+
+- snyk
 
 ## API
 Checkout the OpenAPI spec [here](/openapi3.yaml)
 
+## Installation
 
-## Run Migrations
-if you are running a DB other than _SQLite_ don't forget to run migrations before you start the app
+Install deps with npm
 
-### Shell
-
-Just run the following command
-
-```sh
-npm run migration:run
-```
-
-### Docker
-Build the migrations image
-
-```sh
-docker build -t id-2-osm-migrations:latest -f migrations.Dockerfile .
-```
-
-then simply run
-
-```sh
-docker run -it --rm --network host id-2-osm-migrations:latest
-```
-
-If you want to change the connection properties you can do it via either:
-1. Env variables
-2. Inject a config file based on your environment
-
-
-Via env variables
-```sh
-docker run -it -e DB_USERNAME=VALUE  -e DB_PASSWORD=VALUE -e DB_NAME=VALUE -e DB_TYPE=VALUE -e DB_HOST=VALUE -e DB_PORT=VALUE --rm --network host id-2-osm-migrations:latest
-```
-
-Via injectiong a config file, assuming you want to run the migrations on your production
-
-production.json:
-```json
-{
-  "openapiConfig": {
-    "filePath": "./openapi3.yaml",
-    "basePath": "/docs",
-    "rawPath": "/api",
-    "uiPath": "/api"
-  },
-  "logger": {
-    "level": "info"
-  },
-  "server": {
-    "port": "8080"
-  },
-  "db": {
-    "type": "postgres",
-    "host": "localhost",
-    "port": 5432,
-    "username": "prod_avi",
-    "password": "prod_avi",
-    "database": "prod_avi"
-  }
-}
-```
-```sh
-docker run -it --rm -e NODE_ENV=production --network host -v /path/to/proudction.json:/usr/app/config/production.json id-2-osm-migrations:latest
-```
--------------------------------------------------------
-
-## Build and Run
-
-```sh
+```bash
 npm install
-npm start
+```
+
+## Run Locally
+
+Clone the project
+
+```bash
+
+git clone https://link-to-project
+
+```
+
+Go to the project directory
+
+```bash
+
+cd my-project
+
+```
+
+Install dependencies
+
+```bash
+
+npm install
+
+```
+
+Start the server
+
+```bash
+
+npm run start
+
+```
+
+## Running Tests
+
+To run tests, run the following command
+
+```bash
+
+npm run test
+
+```
+
+To only run unit tests:
+```bash
+npm run test:unit
+```
+
+To only run integration tests:
+```bash
+npm run test:integration
 ```
