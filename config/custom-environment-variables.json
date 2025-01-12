@@ -24,7 +24,10 @@
     }
   },
   "server": {
-    "port": "SERVER_PORT",
+    "port": {
+      "__name": "SERVER_PORT",
+      "__format": "number"
+    },
     "request": {
       "payload": {
         "limit": "REQUEST_PAYLOAD_LIMIT"
