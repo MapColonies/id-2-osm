@@ -4,13 +4,13 @@ Make sure you've read the contributing guidelines (CONTRIBUTING.md)
 
 | Question        | Answer |
 | --------------- | ------ |
-| Bug fix         | ✔/✖    |
-| New feature     | ✔/✖    |
-| Breaking change | ✔/✖    |
-| Deprecations    | ✔/✖    |
-| Documentation   | ✔/✖    |
-| Tests added     | ✔/✖    |
-| Chore           | ✔/✖    |
+| Bug fix         | ✔/✖  |
+| New feature     | ✔/✖  |
+| Breaking change | ✔/✖  |
+| Deprecations    | ✔/✖  |
+| Documentation   | ✔/✖  |
+| Tests added     | ✔/✖  |
+| Chore           | ✔/✖  |
 
 Related issues: #XXX , #XXX ...
 Closes #XXX ...

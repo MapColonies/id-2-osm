@@ -1,26 +1,30 @@
 name: pull_request
 
-on: [pull_request]
+on: [pull_request, workflow_dispatch]
+env:
+  DB_HOST: localhost
+  DB_NAME: postgres
 
 jobs:
   eslint:
-    name: Run eslint
+    name: Run TS Project eslint
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node: [20.x, 22.x]
+
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v2
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v1
+      - name: Init nodejs
+        uses: ./.github/actions/init-npm
         with:
-          node-version: 16
+          node-version: ${{ matrix.node }}
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linters
-        uses: wearerequired/lint-action@v1
+      - name: Run TS Project linters
+        uses: wearerequired/lint-action@v2
         with:
           github_token: ${{ secrets.github_token }}
           # Enable linters
@@ -28,48 +32,79 @@ jobs:
           prettier: true
           eslint_extensions: ts
 
-      - name: OpenAPI Lint Checks
-        uses: nwestfall/openapi-action@v1.0.2
-        with:
-         github_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ./openapi3.yaml
-
-  security:
+  openapi-lint:
+    name: Run OpenAPI lint Check
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@master
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master
-      continue-on-error: true
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@v4
+
+      - name: Init nodejs
+        uses: ./.github/actions/init-npm
+
+      - name: OpenAPI Lint Checks
+        run: npx @redocly/cli lint --format=github-actions openapi3.yaml
 
   tests:
     name: Run Tests
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        node: [14.x, 16.x]
+        node: [20.x, 22.x]
+
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:14
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: 'postgres'
+          POSTGRES_USER: postgres
+          POSTGRES_DB: id-2-osm
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v2
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node }}
+      - name: Init nodejs
+        uses: ./.github/actions/init-npm
 
-      - name: Install Node.js dependencies
-        run: npm ci
+      - name: Run migrations
+        run: npm run migration:run
+        env:
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
 
       - name: Run tests
         run: npm run test
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
-          name: Test Reporters
-          path: reports/**
+          name: Test Reporters ${{ matrix.node }}
+          path: ./reports/**
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   build_image:
     name: Build Image
@@ -81,6 +116,3 @@ jobs:
 
       - name: build Docker image
         run: docker build -t test-build:latest .
-
-      - name: build migrations Docker image
-        run: docker build -f ./migrations.Dockerfile -t test-migrations-build:latest .
