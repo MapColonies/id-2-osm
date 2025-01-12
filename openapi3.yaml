@@ -134,9 +134,8 @@ components:
     OsmId:
       type: integer
       format: int64
-      minimum: 0
+      minimum: 1
       example: 1337
-      exclusiveMinimum: true
     ExternalId:
       type: string
       example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
