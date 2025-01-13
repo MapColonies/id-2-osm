@@ -3,7 +3,11 @@ name: pull_request
 on: [pull_request, workflow_dispatch]
 env:
   DB_HOST: localhost
-  DB_NAME: postgres
+  DB_PORT: 5432
+  DB_NAME: id-2-osm
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+  DB_SCHEMA: id_2_osm
 
 jobs:
   eslint:
@@ -80,16 +84,36 @@ jobs:
       - name: Init nodejs
         uses: ./.github/actions/init-npm
 
+      - name: Install pg client
+        run: |
+          apt-get update && apt-get install -y lsb-release
+          sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+          apt-get update
+          apt-get install -y postgresql-client
+
+      - name: Create schema
+        run: psql -h $DB_HOST -d $DB_NAME -U $DB_USERNAME -c 'CREATE SCHEMA $DB_SCHEMA;'
+        env:
+          PGPASSWORD: $DB_PASSWORD
+
       - name: Run migrations
         run: npm run migration:run
         env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USERNAME: postgres
-          DB_PASSWORD: postgres
+          DB_HOST: $DB_HOST
+          DB_PORT: $DB_PORT
+          DB_NAME: $DB_NAME
+          DB_USERNAME: $DB_USERNAME
+          DB_PASSWORD: $DB_PASSWORD
 
       - name: Run tests
         run: npm run test
+        env:
+          DB_HOST: $DB_HOST
+          DB_PORT: $DB_PORT
+          DB_NAME: $DB_NAME
+          DB_USERNAME: $DB_USERNAME
+          DB_PASSWORD: $DB_PASSWORD
 
       - uses: actions/upload-artifact@v4
         with:
