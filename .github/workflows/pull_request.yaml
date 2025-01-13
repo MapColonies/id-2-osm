@@ -65,9 +65,9 @@ jobs:
         image: postgres:14
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: 'postgres'
-          POSTGRES_USER: postgres
-          POSTGRES_DB: id-2-osm
+          POSTGRES_PASSWORD: $DB_PASSWORD
+          POSTGRES_USER: $DB_USERNAME
+          POSTGRES_DB: $DB_NAME
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
