@@ -86,11 +86,13 @@ jobs:
 
       - name: Install pg client
         run: |
-          apt-get update && apt-get install -y lsb-release
-          sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-          apt-get update
-          apt-get install -y postgresql-client
+          sudo apt-get update && sudo apt-get install -y lsb-release
+          echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /usr/share/keyrings/postgresql-keyring.asc > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/postgresql-keyring.asc] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+        shell: bash
 
       - name: Create schema
         run: psql -h $DB_HOST -d $DB_NAME -U $DB_USERNAME -c 'CREATE SCHEMA $DB_SCHEMA;'
