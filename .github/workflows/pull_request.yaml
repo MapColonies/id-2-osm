@@ -142,3 +142,6 @@ jobs:
 
       - name: build Docker image
         run: docker build -t test-build:latest .
+
+      - name: build migrations Docker image
+        run: docker build -f ./migrations.Dockerfile -t test-migrations-build:latest .
