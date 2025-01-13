@@ -181,3 +181,4 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/Entity'
+security: []
