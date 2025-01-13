@@ -65,9 +65,9 @@ jobs:
         image: postgres:14
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: $DB_PASSWORD
-          POSTGRES_USER: $DB_USERNAME
-          POSTGRES_DB: $DB_NAME
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD}}
+          POSTGRES_USER: ${{ env.DB_USERNAME }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
         ports:
           - 5432:5432
         # Set health checks to wait until postgres has started
@@ -95,27 +95,27 @@ jobs:
         shell: bash
 
       - name: Create schema
-        run: psql -h $DB_HOST -d $DB_NAME -U $DB_USERNAME -c 'CREATE SCHEMA $DB_SCHEMA;'
+        run: psql -h $DB_HOST -d $DB_NAME -U $DB_USERNAME -c 'CREATE SCHEMA id_2_osm;'
         env:
-          PGPASSWORD: $DB_PASSWORD
+          PGPASSWORD: ${{ env.DB_PASSWORD }}
 
       - name: Run migrations
         run: npm run migration:run
         env:
-          DB_HOST: $DB_HOST
-          DB_PORT: $DB_PORT
-          DB_NAME: $DB_NAME
-          DB_USERNAME: $DB_USERNAME
-          DB_PASSWORD: $DB_PASSWORD
+          DB_HOST: ${{ env.DB_HOST }}
+          DB_PORT: ${{ env.DB_PORT }}
+          DB_NAME: ${{ env.DB_NAME }}
+          DB_USERNAME: ${{ env.DB_USERNAME }}
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
 
       - name: Run tests
         run: npm run test
         env:
-          DB_HOST: $DB_HOST
-          DB_PORT: $DB_PORT
-          DB_NAME: $DB_NAME
-          DB_USERNAME: $DB_USERNAME
-          DB_PASSWORD: $DB_PASSWORD
+          DB_HOST: ${{ env.DB_HOST }}
+          DB_PORT: ${{ env.DB_PORT }}
+          DB_NAME: ${{ env.DB_NAME }}
+          DB_USERNAME: ${{ env.DB_USERNAME }}
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
 
       - uses: actions/upload-artifact@v4
         with:
