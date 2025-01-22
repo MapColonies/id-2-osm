@@ -7,7 +7,7 @@ export interface IEntity {
 
 @OrmEntity()
 export class Entity implements IEntity {
-  @PrimaryColumn({ type: 'varchar', name: 'external_id', length: 68 })
+  @PrimaryColumn({ type: 'character varying', name: 'external_id', length: 68 })
   public externalId!: string;
 
   @Index()
