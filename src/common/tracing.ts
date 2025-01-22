@@ -1,10 +1,10 @@
-import { Tracing } from '@map-colonies/telemetry';
+import { Tracing, TracingOptions } from '@map-colonies/telemetry';
 import { IGNORED_INCOMING_TRACE_ROUTES, IGNORED_OUTGOING_TRACE_ROUTES } from './constants';
 
 let tracing: Tracing | undefined;
 
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-export function tracingFactory(options: ConstructorParameters<typeof Tracing>[0]): Tracing {
+export function tracingFactory(options: TracingOptions): Tracing {
   tracing = new Tracing({
     ...options,
     autoInstrumentationsConfigMap: {
