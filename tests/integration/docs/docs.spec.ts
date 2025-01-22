@@ -4,16 +4,11 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
-import { initConfig } from '@src/common/config';
 import { DocsRequestSender } from './helpers/docsRequestSender';
 
 describe('docs', function () {
   let requestSender: DocsRequestSender;
   let container: DependencyContainer;
-
-  beforeAll(async function () {
-    await initConfig(true);
-  });
 
   beforeEach(async function () {
     const [app, initializedContainer] = await getApp({

@@ -1,5 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
-import { container, DependencyContainer } from 'tsyringe';
+import { DependencyContainer } from 'tsyringe';
 import { faker } from '@faker-js/faker';
 import { Application } from 'express';
 import { QueryFailedError } from 'typeorm';
@@ -7,7 +7,7 @@ import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
-import { ConfigType, getConfig, initConfig } from '@src/common/config';
+import { ConfigType, getConfig } from '@src/common/config';
 import { ENTITY_REPOSITORY_SYMBOL } from '@src/entity/models/entityManager';
 import { createFakeEntity, createOsmId } from '../../helpers/helpers';
 import * as requestSender from './helpers/requestSender';
@@ -18,8 +18,7 @@ describe('entity', function () {
   let container: DependencyContainer;
   let configInstance: ConfigType;
 
-  beforeAll(async function () {
-    await initConfig(true);
+  beforeAll(function () {
     configInstance = getConfig();
   });
 
