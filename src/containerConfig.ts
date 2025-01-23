@@ -1,15 +1,16 @@
 import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
+import jsLogger from '@map-colonies/js-logger';
+import { HealthCheck } from '@godaddy/terminus';
 import { Registry } from 'prom-client';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
-import jsLogger from '@map-colonies/js-logger';
 import { InjectionObject, registerDependencies } from '@common/dependencyRegistration';
-import { ON_SIGNAL, SERVICES, SERVICE_NAME } from '@common/constants';
+import { HEALTHCHECK, ON_SIGNAL, SERVICES, SERVICE_NAME } from '@common/constants';
 import { getTracing } from '@common/tracing';
 import { DataSource } from 'typeorm';
 import { ENTITY_ROUTER_SYMBOL, entityRouterFactory } from './entity/routes/entityRouter';
 import { getConfig } from './common/config';
-import { initConnection } from './common/db/connection';
+import { getDbHealthCheckFunction, initConnection } from './common/db/connection';
 import { ENTITY_REPOSITORY_SYMBOL } from './entity/models/entityManager';
 import { Entity } from './entity/models/entity';
 import { DbConfig } from './common/interfaces';
@@ -46,6 +47,15 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
           useValue: async (): Promise<void> => {
             await Promise.all([getTracing().stop(), connection.destroy()]);
           },
+        },
+      },
+    },
+    {
+      token: HEALTHCHECK,
+      provider: {
+        useFactory: (depContainer): HealthCheck => {
+          const dataSource = depContainer.resolve<DataSource>(DataSource);
+          return getDbHealthCheckFunction(dataSource);
         },
       },
     },
