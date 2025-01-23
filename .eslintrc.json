@@ -4,13 +4,15 @@
   "parserOptions": {
     "project": "./tsconfig.lint.json"
   },
-  "@typescript-eslint/no-unused-vars": [
-    "error",
-    {
-      "args": "all",
-      "argsIgnorePattern": "^_",
-      "varsIgnorePattern": "^_",
-      "caughtErrorsIgnorePattern": "^_"
-    }
-  ]
+  "rules": {
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ]
+  }
 }
