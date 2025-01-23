@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { createConnectionOptions } from './src/common/db/connection';
 import { DbConfig } from './src/common/interfaces';
 import { getConfig, initConfig } from './src/common/config';
+import { Entity } from './src/entity/models/entity';
 
 const dataSourceFactory = async (): Promise<DataSource> => {
   await initConfig(true);
@@ -11,7 +12,7 @@ const dataSourceFactory = async (): Promise<DataSource> => {
 
   const appDataSource = new DataSource({
     ...createConnectionOptions(connectionOptions),
-    entities: ['src/entity/models/*.ts'],
+    entities: [Entity, 'src/entity/models/*.ts'],
     migrationsTableName: 'custom_migration_table',
     migrations: ['db/migration/*.ts'],
   });
