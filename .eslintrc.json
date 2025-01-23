@@ -3,5 +3,14 @@
   "extends": ["@map-colonies/eslint-config/jest", "@map-colonies/eslint-config/ts-base"],
   "parserOptions": {
     "project": "./tsconfig.lint.json"
-  }
+  },
+  "@typescript-eslint/no-unused-vars": [
+    "error",
+    {
+      "args": "all",
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_",
+      "caughtErrorsIgnorePattern": "^_"
+    }
+  ]
 }
