@@ -23,7 +23,6 @@
     "start:dev": "npm run build && cd dist && cross-env CONFIG_OFFLINE_MODE=true  node --enable-source-maps --import ./instrumentation.mjs ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
     "clean": "rimraf dist",
-    "generate:openapi-types": "openapi-helpers ./openapi3.yaml ./src/openapi.d.ts --format --add-typed-request-handler",
     "prepare": "node .husky/install.mjs"
   },
   "directories": {
@@ -33,6 +32,7 @@
   "license": "ISC",
   "dependencies": {
     "@godaddy/terminus": "^4.12.1",
+    "@map-colonies/cleanup-registry": "^1.1.0",
     "@map-colonies/config": "^1.3.2",
     "@map-colonies/error-express-handler": "^2.1.0",
     "@map-colonies/express-access-log-middleware": "^2.0.1",
@@ -50,14 +50,14 @@
     "prom-client": "^15.1.2",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.8.0",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "typeorm-transactional": "^0.5.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@faker-js/faker": "^9.3.0",
     "@map-colonies/eslint-config": "^4.0.0",
-    "@map-colonies/openapi-helpers": "^1.2.0",
     "@map-colonies/prettier-config": "0.0.1",
     "@redocly/openapi-cli": "^1.0.0-beta.94",
     "@swc/core": "^1.7.26",

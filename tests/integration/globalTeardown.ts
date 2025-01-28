@@ -1,17 +1,20 @@
-import { Entity } from '../../src/entity/models/entity';
-import { initConnection } from '../../src/common/db/connection';
+import { DataSource } from 'typeorm';
+import { createDataSourceOptions } from '../../src/common/db/connection';
 import { getConfig, initConfig } from '../../src/common/config';
 import { DbConfig } from '../../src/common/interfaces';
+import { Entity } from '../../src/entity/models/entity';
 
 export default async (): Promise<void> => {
   await initConfig(true);
 
   const config = getConfig();
   const dbConfig = config.get('db') as DbConfig;
-  const appDataSource = await initConnection(dbConfig);
-  const entityRepository = appDataSource.getRepository(Entity);
+  const dataSource = new DataSource(createDataSourceOptions(dbConfig));
+  await dataSource.initialize();
 
+  const entityRepository = dataSource.getRepository(Entity);
   await entityRepository.clear();
-  await appDataSource.destroy();
+
+  await dataSource.destroy();
   return;
 };

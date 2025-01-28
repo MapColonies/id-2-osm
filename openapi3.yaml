@@ -6,6 +6,7 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+security: []
 paths:
   /entity:
     post:
@@ -41,6 +42,7 @@ paths:
               oneOf:
                 - $ref: '#/components/schemas/BulkCreateRequest'
                 - $ref: '#/components/schemas/BulkDeleteRequest'
+                - $ref: '#/components/schemas/MultiBulkRequest'
       responses:
         '200':
           description: Operation was successful
@@ -151,6 +153,12 @@ components:
           $ref: '#/components/schemas/ExternalId'
         osmId:
           $ref: '#/components/schemas/OsmId'
+    MultiBulkRequest:
+      type: array
+      minItems: 2
+      maxItems: 2
+      items:
+        $ref: '#/components/schemas/BulkOperationRequest'
     BulkDeleteRequest:
       type: object
       required:
@@ -181,4 +189,8 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/Entity'
-security: []
+    BulkOperationRequest:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/BulkCreateRequest'
+        - $ref: '#/components/schemas/BulkDeleteRequest'

@@ -11,3 +11,10 @@ export class EntityNotFoundError extends Error {
     Object.setPrototypeOf(this, EntityNotFoundError.prototype);
   }
 }
+
+export class BulkRequestValidationError extends Error {
+  public constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, BulkRequestValidationError.prototype);
+  }
+}

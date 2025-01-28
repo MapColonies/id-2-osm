@@ -1,11 +1,13 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { In, Repository } from 'typeorm';
+import { runInTransaction } from 'typeorm-transactional';
+import { DEFAULT_TRANSACTION_OPTIONS } from '@src/common/db/connection';
 import { SERVICES } from '../../common/constants';
-import { Entity, IEntity } from './entity';
+import { Entity, ENTITY_REPOSITORY_SYMBOL } from './entity';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
-
-export const ENTITY_REPOSITORY_SYMBOL = Symbol('EntityRepository');
+import { BulkActions, MultiOperationBulk, MultiOperationBulksRequestBody } from './operations';
+import { IEntity } from './interfaces';
 
 @injectable()
 export class EntityManager {
@@ -14,10 +16,16 @@ export class EntityManager {
     @inject(SERVICES.LOGGER) private readonly logger: Logger
   ) {}
 
-  public async getEntity(externalId: string): Promise<Entity | null> {
+  public async getEntity(externalId: string): Promise<Entity> {
     this.logger.info({ msg: 'getting entity', externalId });
 
-    return this.repository.findOneBy({ externalId });
+    const entity = await this.repository.findOneBy({ externalId });
+
+    if (entity === null) {
+      throw new EntityNotFoundError('Entity with given id was not found.');
+    }
+
+    return entity;
   }
 
   public async createEntity(newEntity: IEntity): Promise<void> {
@@ -62,6 +70,7 @@ export class EntityManager {
         osmId: dbEntity.osmId,
         externalId: dbEntity.externalId,
       });
+
       throw new IdAlreadyExistsError(message);
     }
 
@@ -85,7 +94,7 @@ export class EntityManager {
   public async deleteEntities(externalIds: string[]): Promise<void> {
     this.logger.info({ msg: 'deleting bulk entities', amount: externalIds.length });
 
-    const entities = await this.repository.findByIds(externalIds);
+    const entities = await this.repository.findBy({ externalId: In(externalIds) });
 
     if (entities.length !== externalIds.length) {
       this.logger.error({
@@ -98,5 +107,19 @@ export class EntityManager {
     }
 
     await this.repository.delete(externalIds);
+  }
+
+  public async multiOperationBulks(multiBulks: MultiOperationBulksRequestBody): Promise<void> {
+    this.logger.info({ msg: 'attempting to run multi operation bulk in a single transaction', transactionOptions: DEFAULT_TRANSACTION_OPTIONS });
+
+    const [req1, req2] = multiBulks;
+    const [createBulk, deleteBulk] = (req1.action === BulkActions.CREATE ? [req1, req2] : [req2, req1]) as MultiOperationBulk;
+
+    await runInTransaction(async () => {
+      await this.createEntities(createBulk.payload);
+      await this.deleteEntities(deleteBulk.payload);
+    }, DEFAULT_TRANSACTION_OPTIONS);
+
+    return;
   }
 }
