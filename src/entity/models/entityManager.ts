@@ -2,7 +2,7 @@ import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { In, Repository } from 'typeorm';
 import { runInTransaction } from 'typeorm-transactional';
-import { DEFAULT_TRANSACTION_OPTIONS } from '@src/common/db/connection';
+import { DEFAULT_TRANSACTION_OPTIONS } from '../../common/db/connection';
 import { SERVICES } from '../../common/constants';
 import { Entity, ENTITY_REPOSITORY_SYMBOL } from './entity';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
