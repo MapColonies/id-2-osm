@@ -32,19 +32,11 @@ export class EntityManager {
     const { externalId, osmId } = newEntity;
     this.logger.info({ msg: 'creating new entity', externalId, osmId });
 
-    const dbEntity = await this.repository.findOne({ where: [{ externalId }, { osmId }] });
+    const dbEntity = await this.repository.findOne({ where: [{ externalId }] });
 
     if (dbEntity) {
-      let message: string;
-      if (dbEntity.externalId === newEntity.externalId) {
-        message = `externalId=${newEntity.externalId} already exists`;
-        this.logger.error({ msg: 'entity with the same externalId already exists', externalId });
-      } else {
-        message = `osmId=${newEntity.osmId} already exists`;
-        this.logger.error({ msg: 'entity with the same osmId already exists', osmId });
-      }
-
-      throw new IdAlreadyExistsError(message);
+      this.logger.error({ msg: 'entity with the same externalId already exists', externalId });
+      throw new IdAlreadyExistsError(`externalId=${newEntity.externalId} already exists`);
     }
 
     await this.repository.insert(newEntity);
@@ -58,7 +50,6 @@ export class EntityManager {
         {
           externalId: In(newEntities.map((entity) => entity.externalId)),
         },
-        { osmId: In(newEntities.map((entity) => entity.osmId)) },
       ],
     });
 
@@ -115,9 +106,23 @@ export class EntityManager {
     const [req1, req2] = multiBulks;
     const [createBulk, deleteBulk] = (req1.action === BulkActions.CREATE ? [req1, req2] : [req2, req1]) as MultiOperationBulk;
 
+    const createCount = createBulk.payload.length;
+    const deleteCount = deleteBulk.payload.length;
+
+    this.logger.info({
+      msg: 'attempting to run multi operation bulk in a single transaction',
+      transactionOptions: DEFAULT_TRANSACTION_OPTIONS,
+      createCount,
+      deleteCount,
+    });
+
     await runInTransaction(async () => {
-      await this.createEntities(createBulk.payload);
-      await this.deleteEntities(deleteBulk.payload);
+      if (createCount > 0) {
+        await this.createEntities(createBulk.payload);
+      }
+      if (deleteCount > 0) {
+        await this.deleteEntities(deleteBulk.payload);
+      }
     }, DEFAULT_TRANSACTION_OPTIONS);
 
     return;

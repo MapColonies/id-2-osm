@@ -100,28 +100,39 @@ export class EntityController {
   };
 
   private validateBulkRequest(bulkReq: BulkRequestBody): void {
-    if (!Array.isArray(bulkReq)) {
-      return;
-    }
+    try {
+      if (!Array.isArray(bulkReq)) {
+        // validate single operation payload is not empty
+        if (bulkReq.payload.length === 0) {
+          throw new BulkRequestValidationError('single operation request payload must NOT have fewer than 1 items');
+        }
+        return;
+      }
 
-    const [bulkReq1, bulkReq2] = bulkReq;
+      const [bulkReq1, bulkReq2] = bulkReq;
 
-    if (bulkReq1.action === bulkReq2.action) {
-      const error = new BulkRequestValidationError('multi operation request payload must be a tuple of create bulk and delete bulk');
-      this.logger.error({ msg: 'validation failed', err: error });
-      throw error;
-    }
+      // validate double operation action has 2 different actions
+      if (bulkReq1.action === bulkReq2.action) {
+        throw new BulkRequestValidationError('multi operation request payload must be a tuple of create bulk and delete bulk');
+      }
 
-    const createBulk = [bulkReq1, bulkReq2].filter((bulk) => bulk.action === BulkActions.CREATE)[0];
-    const deleteBulk = [bulkReq1, bulkReq2].filter((bulk) => bulk.action === BulkActions.DELETE)[0];
+      const createBulk = [bulkReq1, bulkReq2].filter((bulk) => bulk.action === BulkActions.CREATE)[0];
+      const deleteBulk = [bulkReq1, bulkReq2].filter((bulk) => bulk.action === BulkActions.DELETE)[0];
+      const createEntities = createBulk.payload.map((p) => p.externalId);
+      const deleteEntities = deleteBulk.payload;
+      const entities = [...createEntities, ...deleteEntities];
 
-    const createEntities = createBulk.payload.map((p) => p.externalId);
-    const deleteEntities = deleteBulk.payload;
-    const entities = [...createEntities, ...deleteEntities];
+      // validate double operation action is not empty
+      if (entities.length === 0) {
+        throw new BulkRequestValidationError('multi operation request payloads must NOT have fewer than 1 items');
+      }
 
-    const uniqueEntities = new Set(entities);
-    if (uniqueEntities.size !== entities.length) {
-      const error = new BulkRequestValidationError('duplicate externalId found in multi operation request payload');
+      // validate double operation action has no duplicate entities
+      const uniqueEntities = new Set(entities);
+      if (uniqueEntities.size !== entities.length) {
+        throw new BulkRequestValidationError('duplicate externalId found in multi operation request payload');
+      }
+    } catch (error) {
       this.logger.error({ msg: 'validation failed', err: error });
       throw error;
     }

@@ -61,6 +61,14 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.CREATED);
       });
+
+      it('should return 201 status code even if there is an existing entity with the same osmId', async function () {
+        const existingEntity = await createDbEntity(container);
+        const newEntity = createFakeEntity();
+        const response = await requestSender.createEntity(app, { externalId: newEntity.externalId, osmId: existingEntity.osmId });
+
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+      });
     });
 
     describe('Bad Path 😡', function () {
@@ -98,21 +106,13 @@ describe('entity', function () {
     });
 
     describe('Sad Path 😥', function () {
-      it('should return 422 status code if an entity with the same externalId exists', async function () {
-        const entity = await createDbEntity(container);
-        const response = await requestSender.createEntity(app, entity);
-
-        expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
-        expect(response.body).toHaveProperty('message', `externalId=${entity.externalId} already exists`);
-      });
-
-      it('should return 422 status code if an entity with the same osmId exists', async function () {
+      it('should return 422 status code if an entity with the same externalId exists while osmId is different', async function () {
         const existingEntity = await createDbEntity(container);
-        const entity = await createDbEntity(container);
-        const response = await requestSender.createEntity(app, { ...entity, osmId: existingEntity.osmId });
+        const newEntity = createFakeEntity();
+        const response = await requestSender.createEntity(app, { externalId: existingEntity.externalId, osmId: newEntity.osmId });
 
         expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
-        expect(response.body).toHaveProperty('message', `osmId=${existingEntity.osmId} already exists`);
+        expect(response.body).toHaveProperty('message', `externalId=${existingEntity.externalId} already exists`);
       });
 
       it('should return 500 status code if an db exception happens', async function () {
@@ -147,6 +147,18 @@ describe('entity', function () {
     describe('Happy Path 🙂', function () {
       it('should return 201 status code', async function () {
         const requestBody: BulkCreateRequestBody = { action: BulkActions.CREATE, payload: [createFakeEntity()] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+      });
+
+      it('should return 201 status code even if there is an existing entity with the same osmId', async function () {
+        const existingEntity = await createDbEntity(container);
+        const newEntity = createFakeEntity();
+        const requestBody: BulkCreateRequestBody = {
+          action: BulkActions.CREATE,
+          payload: [{ externalId: newEntity.externalId, osmId: existingEntity.osmId }],
+        };
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.OK);
@@ -215,18 +227,31 @@ describe('entity', function () {
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload must NOT have fewer than 1 items');
+        expect(response.body).toHaveProperty('message', 'single operation request payload must NOT have fewer than 1 items');
       });
     });
 
     describe('Sad Path 😥', function () {
-      it('should return 422 status code if an entity with the same id exists', async function () {
-        const entity = await createDbEntity(container);
-        const requestBody: BulkCreateRequestBody = { action: BulkActions.CREATE, payload: [entity] };
+      it('should return 422 status code if an entity with the same ids exists', async function () {
+        const existingEntity = await createDbEntity(container);
+        const requestBody: BulkCreateRequestBody = { action: BulkActions.CREATE, payload: [createFakeEntity(), existingEntity, createFakeEntity()] };
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
-        expect(response.body).toHaveProperty('message', `an entity with the following ids: ${JSON.stringify(entity)} already exists`);
+        expect(response.body).toHaveProperty('message', `an entity with the following ids: ${JSON.stringify(existingEntity)} already exists`);
+      });
+
+      it('should return 422 status code if an entity with the same external exists', async function () {
+        const existingEntity = await createDbEntity(container);
+        const newEntity = createFakeEntity();
+        const requestBody: BulkCreateRequestBody = {
+          action: BulkActions.CREATE,
+          payload: [{ externalId: existingEntity.externalId, osmId: newEntity.osmId }],
+        };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
+        expect(response.body).toHaveProperty('message', `an entity with the following ids: ${JSON.stringify(existingEntity)} already exists`);
       });
 
       it('should return 500 status code if an db exception happens', async function () {
@@ -308,7 +333,7 @@ describe('entity', function () {
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHavePropertyThatContains('message', 'request/body/payload must NOT have fewer than 1 items');
+        expect(response.body).toHaveProperty('message', 'single operation request payload must NOT have fewer than 1 items');
       });
     });
 
@@ -386,6 +411,34 @@ describe('entity', function () {
         const getDeletedResponse = await requestSender.getEntity(app, entityForDeletion.externalId);
         expect(getDeletedResponse.status).toBe(httpStatusCodes.NOT_FOUND);
       });
+
+      it('should return 200 status code for a tuple of create and empty delete', async function () {
+        const entityForCreation = createFakeEntity();
+        const requestBody: BulkRequestBody = [
+          { action: BulkActions.CREATE, payload: [entityForCreation] },
+          { action: BulkActions.DELETE, payload: [] },
+        ];
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+
+        const getCreatedResponse = await requestSender.getEntity(app, entityForCreation.externalId);
+        expect(getCreatedResponse.status).toBe(httpStatusCodes.OK);
+      });
+
+      it('should return 200 status code for a tuple of empty create and delete', async function () {
+        const entityForDeletion = await createDbEntity(container);
+        const requestBody: BulkRequestBody = [
+          { action: BulkActions.DELETE, payload: [entityForDeletion.externalId] },
+          { action: BulkActions.CREATE, payload: [] },
+        ];
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+
+        const getDeletedResponse = await requestSender.getEntity(app, entityForDeletion.externalId);
+        expect(getDeletedResponse.status).toBe(httpStatusCodes.NOT_FOUND);
+      });
     });
 
     describe('Bad Path 😡', function () {
@@ -454,10 +507,21 @@ describe('entity', function () {
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHavePropertyThatContains('message', 'duplicate externalId found in multi operation request payload');
       });
+
+      it('should return 400 status code for multi request consisting empty payloads', async function () {
+        const requestBody: BulkRequestBody = [
+          { action: BulkActions.CREATE, payload: [] },
+          { action: BulkActions.DELETE, payload: [] },
+        ];
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', 'multi operation request payloads must NOT have fewer than 1 items');
+      });
     });
 
     describe('Sad Path 😥', function () {
-      it('should in muli operation bulks rollback and return 404 if an entity for deletion not found', async function () {
+      it('should in multi operation bulks rollback and return 404 if an entity for deletion not found', async function () {
         const randomId = faker.string.alphanumeric(20);
         const entityForCreation = createFakeEntity();
         const requestBody: BulkRequestBody = [
@@ -473,7 +537,7 @@ describe('entity', function () {
         expect(getResponse.status).toBe(httpStatusCodes.NOT_FOUND);
       });
 
-      it('should in muli operation bulks rollback and return 404 if an entity for creation already exist', async function () {
+      it('should in multi operation bulks rollback and return 404 if an entity for creation already exist', async function () {
         const entityForCreation = await createDbEntity(container);
         const entityForDeletion = await createDbEntity(container);
         const requestBody: BulkRequestBody = [
