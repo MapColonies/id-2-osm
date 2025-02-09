@@ -1,0 +1,24 @@
+name: Slash Command Dispatch
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  get_comment_branch:
+    runs-on: ubuntu-latest
+    outputs:
+      head_sha: ${{ steps.set_base_ref.outputs.HEAD_SHA }}
+    steps:
+      - name: resolve pr refs
+        uses: xt0rted/pull-request-comment-branch@v3
+        id: comment_branch
+      - name: Set base ref
+        id: set_base_ref
+        run: echo "HEAD_SHA=${{ steps.comment_branch.outputs.head_sha }}" >> $GITHUB_OUTPUT
+  slash_command_dispatch:
+    needs: [get_comment_branch]
+    uses: MapColonies/shared-workflows/.github/workflows/slash-command.yaml@fix-slash-command
+    secrets: inherit
+    with:
+      head-sha: ${{ needs.get_comment_branch.outputs.head_sha }}

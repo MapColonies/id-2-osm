@@ -1,0 +1,32 @@
+name: postgis-check
+
+on:
+  workflow_dispatch:
+    inputs:
+      head-sha:
+        description: 'Reference to the branch to run against'
+        required: true
+      issue-number:
+        description: 'The issue-number of the slash command'
+        required: true
+      comment-creation-date:
+        description: 'The slash command creation date passed from the slash-command workflow'
+        required: true
+      versions:
+        description: 'Wanted postgis docker versions to check'
+        required: false
+      node-versions:
+        description: 'Node.js versions to check'
+        required: false
+
+jobs:
+  postgis_check:
+    uses: MapColonies/shared-workflows/.github/workflows/postgis-check-command.yml@master
+    secrets: inherit
+    with:
+      head-sha: ${{ inputs.head-sha }}
+      issue-number: ${{ inputs.issue-number }}
+      comment-creation-date: ${{ inputs.comment-creation-date }}
+      versions: ${{ inputs.versions }}
+      node-versions: ${{ inputs.node-versions }}
+      db-schema: id_2_osm
