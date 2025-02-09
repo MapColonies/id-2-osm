@@ -7,3 +7,4 @@ node_modules
 coverage
 helm
 reports
+.release-please-manifest.json
