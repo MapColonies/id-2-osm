@@ -18,7 +18,7 @@ jobs:
         run: echo "HEAD_SHA=${{ steps.comment_branch.outputs.head_sha }}" >> $GITHUB_OUTPUT
   slash_command_dispatch:
     needs: [get_comment_branch]
-    uses: MapColonies/shared-workflows/.github/workflows/slash-command.yaml@fix-slash-command
+    uses: MapColonies/shared-workflows/.github/workflows/slash-command.yaml@master
     secrets: inherit
     with:
       head-sha: ${{ needs.get_comment_branch.outputs.head_sha }}
