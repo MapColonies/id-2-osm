@@ -19,7 +19,7 @@ jobs:
       - name: Generate postman collection for service
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '20'
 
       - name: Set File name
         uses: myci-actions/export-env-var@1

@@ -2,6 +2,7 @@
 {{- $chartName := include "id-2-osm.name" . -}}
 {{- $cloudProviderFlavor := include "id-2-osm.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "id-2-osm.cloudProviderDockerRegistryUrl" . -}}
+{{- $cloudProviderImagePullSecretName := include "id-2-osm.cloudProviderImagePullSecretName" . -}}
 {{- $tag := include "id-2-osm.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
@@ -38,15 +39,21 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+    {{- if $cloudProviderImagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ $cloudProviderImagePullSecretName | quote }}
+    {{- end }}  
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}
-          {{- if ne $cloudProviderFlavor "minikube" }}
-          image: {{ $cloudProviderDockerRegistryUrl }}/{{ .repository }}:{{ $tag }}
-          {{- else }}
-          image: {{ .repository }}:{{ $tag }}
+          image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ .tag }}
           {{- end }}
-          {{- end }}
+          volumeMounts:
+            {{- if .Values.caSecretName }}
+            - mountPath: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+              name: root-ca
+              subPath: {{ quote .Values.caKey }}
+            {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - configMapRef:
@@ -56,6 +63,12 @@ spec:
           env:
             - name: SERVER_PORT
               value: {{ .Values.env.targetPort | quote }}
+            {{- if .Values.caSecretName }}
+            - name: REQUESTS_CA_BUNDLE
+              value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+            - name: NODE_EXTRA_CA_CERTS
+              value: {{ printf "[%s/%s]" .Values.caPath .Values.caKey | quote }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.env.targetPort }}
@@ -64,7 +77,7 @@ spec:
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
             httpGet:
               path: /liveness
-              port: http
+              port: {{ .Values.env.targetPort }}
           {{- if .Values.resources.enabled }}
           resources:
             {{- toYaml .Values.resources.value | nindent 12 }}

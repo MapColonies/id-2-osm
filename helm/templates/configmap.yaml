@@ -31,4 +31,5 @@ data:
   TELEMETRY_METRICS_ENABLED: 'true'
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
+  npm_config_cache: /tmp/
 {{- end }}

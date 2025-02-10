@@ -1,12 +1,15 @@
 module.exports = {
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }],
   },
   coverageReporters: ['text', 'html'],
+  collectCoverage: true,
+  collectCoverageFrom: ['<rootDir>/src/**/*.{ts}', '!**/node_modules/**', '!**/vendor/**'],
   rootDir: '../../../.',
   testMatch: ['<rootDir>/tests/integration/**/*.spec.ts'],
-  setupFiles: ['<rootDir>/tests/configurations/jest.setup.js'],
-  globalTeardown: '<rootDir>/tests/configurations/integration/jest.teardown.js',
+  setupFiles: ['<rootDir>/tests/configurations/jest.setup.ts'],
+  setupFilesAfterEnv: ['jest-openapi', '<rootDir>/tests/configurations/initJestOpenapi.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/tests/matchers.js'],
   reporters: [
     'default',
     [
@@ -14,10 +17,7 @@ module.exports = {
       { multipleReportsUnitePath: './reports', pageTitle: 'integration', publicPath: './reports', filename: 'integration.html' },
     ],
   ],
-  collectCoverage: true,
-  setupFilesAfterEnv: ['<rootDir>/tests/matchers.js'],
   moduleDirectories: ['node_modules', 'src'],
-  collectCoverageFrom: ['<rootDir>/src/**/*.{ts}', '!**/node_modules/**', '!**/vendor/**'],
   preset: 'ts-jest',
   testEnvironment: 'node',
 };

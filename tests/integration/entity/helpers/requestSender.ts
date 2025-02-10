@@ -1,35 +1,68 @@
-import * as supertest from 'supertest';
+import config from 'config';
+import client from 'prom-client';
 import { Application } from 'express';
+import * as supertest from 'supertest';
+import { DependencyContainer } from 'tsyringe';
+import jsLogger from '@map-colonies/js-logger';
+import { trace } from '@opentelemetry/api';
+import { DataSource } from 'typeorm';
+import { getApp } from '../../../../src/app';
+import { DbConfig } from '../../../../src/common/interfaces';
+import { initConnection } from '../../../../src/common/db/connection';
+import { SERVICES, METRICS_REGISTRY } from '../../../../src/common/constants';
+import { Entity } from '../../../../src/entity/models/entity';
 
-import { container } from 'tsyringe';
-import { ServerBuilder } from '../../../../src/serverBuilder';
+export class EntityRequestSender {
+  public async createEntity(app: Application, entity: { osmId?: unknown; externalId?: unknown }): Promise<supertest.Response> {
+    return supertest.agent(app).post('/entity').set('Content-Type', 'application/json').send(entity);
+  }
 
-export function getApp(): Application {
-  const builder = container.resolve<ServerBuilder>(ServerBuilder);
-  return builder.build();
-}
+  public async postBulk(
+    app: Application,
+    body: { action: unknown; payload: { osmId?: unknown; externalId?: unknown } | unknown[] }
+  ): Promise<supertest.Response> {
+    return supertest.agent(app).post('/entity/bulk').set('Content-Type', 'application/json').send(body);
+  }
 
-export function getMockedRepoApp(repo: unknown): Application {
-  container.register('EntityRepository', { useValue: repo });
-  const builder = container.resolve<ServerBuilder>(ServerBuilder);
-  return builder.build();
-}
+  public async getEntity(app: Application, externalId: string, responseType = 'application/json'): Promise<supertest.Response> {
+    return supertest.agent(app).get(`/entity/${externalId}`).set('Content-Type', 'application/json').accept(responseType);
+  }
 
-export async function createEntity(app: Application, entity: { osmId?: unknown; externalId?: unknown }): Promise<supertest.Response> {
-  return supertest.agent(app).post('/entity').set('Content-Type', 'application/json').send(entity);
-}
+  public async deleteEntity(app: Application, externalId: string): Promise<supertest.Response> {
+    return supertest.agent(app).delete(`/entity/${externalId}`).set('Content-Type', 'application/json');
+  }
 
-export async function postBulk(
-  app: Application,
-  body: { action: unknown; payload: { osmId?: unknown; externalId?: unknown } | unknown[] }
-): Promise<supertest.Response> {
-  return supertest.agent(app).post('/entity/bulk').set('Content-Type', 'application/json').send(body);
-}
+  public async getMockedRepoApp(repo: unknown): Promise<Application> {
+    const connectionOptions = config.get<DbConfig>('db');
+    const connection = await initConnection({ entities: ['src/entity/models/*.ts'], ...connectionOptions });
+    await connection.synchronize();
+    const app = await getApp({
+      override: [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+        { token: DataSource, provider: { useValue: connection } },
+        { token: 'EntityRepository', provider: { useValue: repo } },
+        { token: METRICS_REGISTRY, provider: { useValue: new client.Registry() } },
+      ],
+      useChild: true,
+    });
+    return app.app;
+  }
 
-export async function getEntity(app: Application, externalId: string, responseType = 'application/json'): Promise<supertest.Response> {
-  return supertest.agent(app).get(`/entity/${externalId}`).set('Content-Type', 'application/json').accept(responseType);
-}
-
-export async function deleteEntity(app: Application, externalId: string): Promise<supertest.Response> {
-  return supertest.agent(app).delete(`/entity/${externalId}`).set('Content-Type', 'application/json');
+  public async getApp(): Promise<{ app: Application; container: DependencyContainer }> {
+    const connectionOptions = config.get<DbConfig>('db');
+    const connection = await initConnection({ entities: ['src/entity/models/*.ts'], ...connectionOptions });
+    await connection.synchronize();
+    const app = await getApp({
+      override: [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+        { token: DataSource, provider: { useValue: connection } },
+        { token: 'EntityRepository', provider: { useValue: connection.getRepository(Entity) } },
+        { token: METRICS_REGISTRY, provider: { useValue: new client.Registry() } },
+      ],
+      useChild: true,
+    });
+    return app;
+  }
 }
