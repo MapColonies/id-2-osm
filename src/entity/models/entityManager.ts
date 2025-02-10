@@ -5,10 +5,12 @@ import { SERVICES } from '../../common/constants';
 import { Entity, IEntity } from './entity';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 
+export const ENTITY_REPOSITORY_SYMBOL = Symbol('EntityRepository');
+
 @injectable()
 export class EntityManager {
   public constructor(
-    @inject('EntityRepository') private readonly repository: Repository<Entity>,
+    @inject(ENTITY_REPOSITORY_SYMBOL) private readonly repository: Repository<Entity>,
     @inject(SERVICES.LOGGER) private readonly logger: Logger
   ) {}
 

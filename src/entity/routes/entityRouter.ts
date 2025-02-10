@@ -14,4 +14,6 @@ const entityRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
   return router;
 };
 
+export const ENTITY_ROUTER_SYMBOL = Symbol('entityRouterFactory');
+
 export { entityRouterFactory };

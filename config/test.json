@@ -1,8 +1,17 @@
 {
   "db": {
-    "type": "better-sqlite3",
-    "database": "./testdb.sqlite",
-    "schema": "public",
-    "enableSslAuth": false
+    "type": "postgres",
+    "host": "postgres",
+    "port": 5432,
+    "username": "postgres",
+    "password": "postgres",
+    "enableSslAuth": false,
+    "sslPaths": {
+      "ca": "",
+      "key": "",
+      "cert": ""
+    },
+    "database": "id-2-osm",
+    "schema": "id_2_osm"
   }
 }
