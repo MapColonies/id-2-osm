@@ -39,9 +39,7 @@ export class EntityController {
 
       return res.status(httpStatus.OK).json(entity);
     } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        (error as HttpError).status = StatusCodes.NOT_FOUND;
-      }
+      this.errorEnricher(error);
       return next(error);
     }
   };
@@ -51,9 +49,7 @@ export class EntityController {
       await this.manager.createEntity(req.body);
       return res.sendStatus(httpStatus.CREATED);
     } catch (error) {
-      if (error instanceof IdAlreadyExistsError) {
-        (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
-      }
+      this.errorEnricher(error);
       return next(error);
     }
   };
@@ -74,13 +70,7 @@ export class EntityController {
 
       return res.sendStatus(StatusCodes.OK);
     } catch (error) {
-      if (error instanceof BulkRequestValidationError) {
-        (error as HttpError).status = httpStatus.BAD_REQUEST;
-      } else if (error instanceof IdAlreadyExistsError) {
-        (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
-      } else if (error instanceof EntityNotFoundError) {
-        (error as HttpError).status = httpStatus.NOT_FOUND;
-      }
+      this.errorEnricher(error);
       return next(error);
     }
   };
@@ -98,6 +88,16 @@ export class EntityController {
       return next(error);
     }
   };
+
+  private errorEnricher(error: unknown): void {
+    if (error instanceof BulkRequestValidationError) {
+      (error as HttpError).status = httpStatus.BAD_REQUEST;
+    } else if (error instanceof IdAlreadyExistsError) {
+      (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
+    } else if (error instanceof EntityNotFoundError) {
+      (error as HttpError).status = httpStatus.NOT_FOUND;
+    }
+  }
 
   private validateBulkRequest(bulkReq: BulkRequestBody): void {
     try {

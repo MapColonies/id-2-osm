@@ -6,7 +6,6 @@ import { IEntity } from '../../../../src/entity/models/interfaces';
 
 export const createDbEntity = async (container: DependencyContainer): Promise<IEntity> => {
   const repo = container.resolve<Repository<Entity>>(ENTITY_REPOSITORY_SYMBOL);
-  // const repo = dataSource.getRepository(Entity);
   const entity = repo.create(createFakeEntity());
   const createdEntity = await repo.save(entity);
   return createdEntity;
