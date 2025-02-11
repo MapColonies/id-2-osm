@@ -1,9 +1,7 @@
 import { Entity as OrmEntity, Index, PrimaryColumn, Column } from 'typeorm';
+import { IEntity } from './interfaces';
 
-export interface IEntity {
-  externalId: string;
-  osmId: number;
-}
+export const ENTITY_REPOSITORY_SYMBOL = Symbol('EntityRepository');
 
 @OrmEntity()
 export class Entity implements IEntity {

@@ -3,7 +3,6 @@ import { IGNORED_INCOMING_TRACE_ROUTES, IGNORED_OUTGOING_TRACE_ROUTES } from './
 
 let tracing: Tracing | undefined;
 
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 export function tracingFactory(options: TracingOptions): Tracing {
   tracing = new Tracing({
     ...options,

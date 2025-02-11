@@ -2,6 +2,7 @@ import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
 import { DocsRequestSender } from './helpers/docsRequestSender';
@@ -23,8 +24,10 @@ describe('docs', function () {
     container = initializedContainer;
   });
 
-  afterAll(function () {
-    container.clearInstances();
+  afterAll(async function () {
+    const registry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await registry.trigger();
+    container.reset();
   });
 
   describe('Happy Path', function () {

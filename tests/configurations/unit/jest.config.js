@@ -18,6 +18,8 @@ module.exports = {
     '!**/controllers/**',
     '!**/routes/**',
     '!<rootDir>/src/*',
+    '!<rootDir>/src/entity/models/entity.ts',
+    '!<rootDir>/src/entity/models/operations.ts',
   ],
   coverageDirectory: '<rootDir>/coverage',
   reporters: [

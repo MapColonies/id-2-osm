@@ -36,12 +36,13 @@ export class ServerBuilder {
   }
 
   private buildDocsRoutes(): void {
+    const openapiConfig = this.config.get('openapiConfig');
     const openapiRouter = new OpenapiViewerRouter({
-      ...this.config.get('openapiConfig'),
-      filePathOrSpec: this.config.get('openapiConfig.filePath'),
+      ...openapiConfig,
+      filePathOrSpec: openapiConfig.filePath,
     });
     openapiRouter.setup();
-    this.serverInstance.use(this.config.get('openapiConfig.basePath'), openapiRouter.getRouter());
+    this.serverInstance.use(openapiConfig.basePath, openapiRouter.getRouter());
   }
 
   private buildRoutes(): void {
