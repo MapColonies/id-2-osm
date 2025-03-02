@@ -2,5 +2,5 @@ apiVersion: v2
 name: id-2-osm
 description: A Helm chart for id-2-osm service
 type: application
-version: 2.1.2
-appVersion: 2.1.2
+version: 2.2.0
+appVersion: 2.2.0

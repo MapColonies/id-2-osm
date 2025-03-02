@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/MapColonies/id-2-osm/compare/v2.1.2...v2.2.0) (2025-03-02)
+
+
+### Features
+
+* **entity:** multi operation support on bulk endpoint ([#163](https://github.com/MapColonies/id-2-osm/issues/163)) ([98303ef](https://github.com/MapColonies/id-2-osm/commit/98303efdd1cd0b85e2fc1e5cb7d990cfebfe3f96))
+
+
+### Bug Fixes
+
+* versionrc conf bad helm chart path ([#155](https://github.com/MapColonies/id-2-osm/issues/155)) ([5207c62](https://github.com/MapColonies/id-2-osm/commit/5207c62b9e49fde7fb651c71fe85ca44309d62b9))
+
 ### [2.1.2](https://github.com/MapColonies/id-2-osm/compare/v2.1.1...v2.1.2) (2022-08-14)
 
 

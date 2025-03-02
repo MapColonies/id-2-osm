@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: id-2-osm
   description: Service to retrieve mapping
-  version: 2.1.2
+  version: 2.2.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
