@@ -1,16 +1,21 @@
 import { Entity as OrmEntity, Index, PrimaryColumn, Column } from 'typeorm';
+import { IEntity } from './interfaces';
 
-export interface IEntity {
-  externalId: string;
-  osmId: number;
-}
+export const ENTITY_REPOSITORY_SYMBOL = Symbol('EntityRepository');
 
 @OrmEntity()
 export class Entity implements IEntity {
-  @PrimaryColumn({ name: 'external_id', length: 68 })
+  @PrimaryColumn({ type: 'character varying', name: 'external_id', length: 68 })
   public externalId!: string;
 
   @Index()
-  @Column({ type: 'bigint', name: 'osm_id' })
+  @Column({
+    type: 'bigint',
+    name: 'osm_id',
+    transformer: {
+      to: (value: number) => value,
+      from: (value: number) => parseInt(value.toString()),
+    },
+  })
   public osmId!: number;
 }

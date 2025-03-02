@@ -1,3 +1,6 @@
+**/myvalues.yaml
+**/local.json
+
 # Logs
 logs
 *.log
@@ -5,6 +8,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+
+# Development tools
+.idea
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -104,7 +110,6 @@ dist
 # TernJS port file
 .tern-port
 
+# Jest
+jest_html_reporters.html
 reports
-
-/**/local.json
-/**/myvalues.yaml

@@ -1,9 +1,5 @@
 import { DataSourceOptions } from 'typeorm';
 
-export interface IServerConfig {
-  port: string;
-}
-
 export type DbConfig = {
   enableSslAuth: boolean;
   sslPaths: { ca: string; cert: string; key: string };

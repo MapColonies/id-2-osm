@@ -1,28 +1,12 @@
 import * as supertest from 'supertest';
 import { Application } from 'express';
-
-import { container } from 'tsyringe';
-import { ServerBuilder } from '../../../../src/serverBuilder';
-
-export function getApp(): Application {
-  const builder = container.resolve<ServerBuilder>(ServerBuilder);
-  return builder.build();
-}
-
-export function getMockedRepoApp(repo: unknown): Application {
-  container.register('EntityRepository', { useValue: repo });
-  const builder = container.resolve<ServerBuilder>(ServerBuilder);
-  return builder.build();
-}
+import { BulkRequestBody } from '../../../../src/entity/models/operations';
 
 export async function createEntity(app: Application, entity: { osmId?: unknown; externalId?: unknown }): Promise<supertest.Response> {
   return supertest.agent(app).post('/entity').set('Content-Type', 'application/json').send(entity);
 }
 
-export async function postBulk(
-  app: Application,
-  body: { action: unknown; payload: { osmId?: unknown; externalId?: unknown } | unknown[] }
-): Promise<supertest.Response> {
+export async function postBulk(app: Application, body: BulkRequestBody): Promise<supertest.Response> {
   return supertest.agent(app).post('/entity/bulk').set('Content-Type', 'application/json').send(body);
 }
 
