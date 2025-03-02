@@ -5,6 +5,6 @@ export const createOsmId = (): number => {
   return faker.number.int({ min: 1, max: 2147483647 });
 };
 
-export const createFakeEntity = (): IEntity => {
-  return { externalId: faker.string.uuid(), osmId: createOsmId() };
+export const createFakeEntity = (params?: Partial<IEntity>): IEntity => {
+  return { externalId: params?.externalId ?? faker.string.uuid(), osmId: params?.osmId ?? createOsmId() };
 };

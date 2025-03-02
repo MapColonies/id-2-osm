@@ -152,6 +152,15 @@ describe('entity', function () {
         expect(response.status).toBe(httpStatusCodes.OK);
       });
 
+      it('should return 201 status for entities with the same osmId while different externalId', async function () {
+        const entity1 = createFakeEntity();
+        const entity2 = createFakeEntity();
+        const requestBody: BulkCreateRequestBody = { action: BulkActions.CREATE, payload: [entity1, { ...entity2, osmId: entity1.osmId }] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+      });
+
       it('should return 201 status code even if there is an existing entity with the same osmId', async function () {
         const existingEntity = await createDbEntity(container);
         const newEntity = createFakeEntity();
@@ -292,6 +301,17 @@ describe('entity', function () {
 
         expect(response.status).toBe(httpStatusCodes.OK);
       });
+
+      it('should return 200 status code for entities consisting of the same osmIds while different externalId', async function () {
+        const { osmId } = createFakeEntity();
+        const entity1 = await createDbEntity(container, { osmId });
+        const entity2 = await createDbEntity(container, { osmId });
+
+        const requestBody: BulkDeleteRequestBody = { action: BulkActions.DELETE, payload: [entity1.externalId, entity2.externalId] };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+      });
     });
 
     describe('Bad Path 😡', function () {
@@ -392,6 +412,35 @@ describe('entity', function () {
 
         const getDeletedResponse = await requestSender.getEntity(app, entityForDeletion.externalId);
         expect(getDeletedResponse.status).toBe(httpStatusCodes.NOT_FOUND);
+      });
+
+      it('should return 200 status code for payloads consisting of the same osmId on different externalIds', async function () {
+        const { osmId: createOsmId } = createFakeEntity();
+        const { osmId: deleteOsmId } = createFakeEntity();
+        const entityForCreation1 = createFakeEntity({ osmId: createOsmId });
+        const entityForCreation2 = createFakeEntity({ osmId: createOsmId });
+        const entityForDeletion1 = await createDbEntity(container, { osmId: deleteOsmId });
+        const entityForDeletion2 = await createDbEntity(container, { osmId: deleteOsmId });
+
+        const requestBody: BulkRequestBody = [
+          { action: BulkActions.CREATE, payload: [entityForCreation1, entityForCreation2] },
+          { action: BulkActions.DELETE, payload: [entityForDeletion1.externalId, entityForDeletion2.externalId] },
+        ];
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+
+        const getCreatedResponse1 = await requestSender.getEntity(app, entityForCreation1.externalId);
+        expect(getCreatedResponse1.status).toBe(httpStatusCodes.OK);
+
+        const getCreatedResponse2 = await requestSender.getEntity(app, entityForCreation2.externalId);
+        expect(getCreatedResponse2.status).toBe(httpStatusCodes.OK);
+
+        const getDeletedResponse1 = await requestSender.getEntity(app, entityForDeletion1.externalId);
+        expect(getDeletedResponse1.status).toBe(httpStatusCodes.NOT_FOUND);
+
+        const getDeletedResponse2 = await requestSender.getEntity(app, entityForDeletion1.externalId);
+        expect(getDeletedResponse2.status).toBe(httpStatusCodes.NOT_FOUND);
       });
 
       it('should return 200 status code for a tuple of delete and then create', async function () {
