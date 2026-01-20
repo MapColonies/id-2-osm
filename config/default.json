@@ -9,7 +9,9 @@
     "tracing": {
       "isEnabled": false
     },
-    "shared": {},
+    "shared": {
+      "serviceName": "id-2-osm"
+    },
     "logger": {
       "level": "info",
       "prettyPrint": false
