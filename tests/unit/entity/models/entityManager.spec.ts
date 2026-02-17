@@ -17,6 +17,7 @@ describe('EntityManager', () => {
   const findOneByMock = jest.fn();
   const findByMock = jest.fn();
   const deleteMock = jest.fn();
+  const upsertMock = jest.fn();
 
   let entityManager: EntityManager;
 
@@ -27,6 +28,7 @@ describe('EntityManager', () => {
       findOne: findOneMock,
       findBy: findByMock,
       delete: deleteMock,
+      upsert: upsertMock,
     } as unknown as Repository<Entity>;
     entityManager = new EntityManager(repository, jsLogger({ enabled: false }));
   });
@@ -36,7 +38,7 @@ describe('EntityManager', () => {
   });
 
   describe('#createEntity', () => {
-    it("resolves without errors if id's are not used", async () => {
+    it('resolves without errors if external id is not used', async () => {
       findOneMock.mockResolvedValue(undefined);
       insertMock.mockResolvedValue(undefined);
       const entity = createFakeEntity();
@@ -78,24 +80,30 @@ describe('EntityManager', () => {
   });
 
   describe('#createEntities', () => {
-    it("resolves without errors if id's are not used", async () => {
-      findOneMock.mockResolvedValue(undefined);
-      insertMock.mockResolvedValue(undefined);
+    it('resolves without errors if external ids are not used', async () => {
+      findOneMock.mockResolvedValue(null);
+      upsertMock.mockResolvedValue(undefined);
       const entities = [createFakeEntity(), createFakeEntity()];
 
       const createPromise = entityManager.createEntities(entities);
 
       await expect(createPromise).resolves.not.toThrow();
+
+      expect(upsertMock).toHaveBeenCalledTimes(1);
+      expect(upsertMock).toHaveBeenCalledWith(entities, {
+        conflictPaths: ['externalId'],
+        skipUpdateIfNoValuesChanged: true,
+      });
     });
 
-    it('rejects if any id already exists', async () => {
+    it('rejects if found conflicting entity', async () => {
       const entities = [createFakeEntity(), createFakeEntity()];
       findOneMock.mockResolvedValue(entities);
-      insertMock.mockResolvedValue(undefined);
 
       const createPromise = entityManager.createEntities(entities);
 
       await expect(createPromise).rejects.toThrow(IdAlreadyExistsError);
+      expect(upsertMock).not.toHaveBeenCalled();
     });
 
     it('rejects on DB error', async () => {
@@ -105,6 +113,7 @@ describe('EntityManager', () => {
       const createPromise = entityManager.createEntities(entities);
 
       await expect(createPromise).rejects.toThrow(QueryFailedError);
+      expect(upsertMock).not.toHaveBeenCalled();
     });
   });
 
@@ -146,6 +155,18 @@ describe('EntityManager', () => {
       const deletePromise = entityManager.deleteEntity(entity.externalId);
 
       await expect(deletePromise).resolves.not.toThrow();
+      expect(findOneByMock).toHaveBeenCalledTimes(1);
+      expect(deleteMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should resolve if the entity is already deleted if validateExists if falsy', async () => {
+      const entity = createFakeEntity();
+
+      const deletePromise = entityManager.deleteEntity(entity.externalId, false);
+
+      await expect(deletePromise).resolves.not.toThrow();
+      expect(findOneByMock).not.toHaveBeenCalled();
+      expect(deleteMock).toHaveBeenCalledTimes(1);
     });
 
     it('should reject with error if entitiy does not exist', async () => {
@@ -176,6 +197,20 @@ describe('EntityManager', () => {
       const deletePromise = entityManager.deleteEntities(entities.map((ent) => ent.externalId));
 
       await expect(deletePromise).resolves.not.toThrow();
+      expect(findByMock).toHaveBeenCalledTimes(1);
+      expect(deleteMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should resolve if the entities are already deleted and validateExistance is falsy', async () => {
+      const entities = [createFakeEntity(), createFakeEntity()];
+
+      const ids = entities.map((ent) => ent.externalId);
+
+      const deletePromise = entityManager.deleteEntities(ids, false);
+
+      await expect(deletePromise).resolves.not.toThrow();
+      expect(findByMock).not.toHaveBeenCalled();
+      expect(deleteMock).toHaveBeenCalledTimes(1);
     });
 
     it('should reject with error if entitiy does not exist', async () => {
@@ -200,14 +235,11 @@ describe('EntityManager', () => {
   });
 
   describe('#multiOperationBulks', () => {
-    it('resolves without errors if for creations ids are not used and for deletion ids are found', async () => {
+    it('resolves without errors if for creations ids are not conflicting', async () => {
       const createEntities = [createFakeEntity(), createFakeEntity()];
       const deleteEntities = [createFakeEntity(), createFakeEntity()];
 
-      findOneMock.mockResolvedValue(undefined);
-      insertMock.mockResolvedValue(undefined);
-      findByMock.mockResolvedValue(deleteEntities);
-      deleteMock.mockResolvedValue(undefined);
+      findOneMock.mockResolvedValue(null);
 
       const multiPromise = entityManager.multiOperationBulks([
         { action: BulkActions.CREATE, payload: createEntities },
@@ -215,16 +247,22 @@ describe('EntityManager', () => {
       ]);
 
       await expect(multiPromise).resolves.not.toThrow();
+
+      expect(upsertMock).toHaveBeenCalledTimes(1);
+      expect(upsertMock).toHaveBeenCalledWith(createEntities, {
+        conflictPaths: ['externalId'],
+        skipUpdateIfNoValuesChanged: true,
+      });
+      expect(findByMock).not.toHaveBeenCalled();
+      expect(deleteMock).toHaveBeenCalledTimes(1);
+      expect(deleteMock).toHaveBeenCalledWith(deleteEntities.map((e) => e.externalId));
     });
 
     it('resolves without errors for valid request where delete bulk is first', async () => {
       const createEntities = [createFakeEntity(), createFakeEntity()];
       const deleteEntities = [createFakeEntity(), createFakeEntity()];
 
-      findOneMock.mockResolvedValue(undefined);
-      insertMock.mockResolvedValue(undefined);
-      findByMock.mockResolvedValue(deleteEntities);
-      deleteMock.mockResolvedValue(undefined);
+      findOneMock.mockResolvedValue(null);
 
       const multiPromise = entityManager.multiOperationBulks([
         { action: BulkActions.DELETE, payload: deleteEntities.map((e) => e.externalId) },
@@ -232,6 +270,15 @@ describe('EntityManager', () => {
       ]);
 
       await expect(multiPromise).resolves.not.toThrow();
+
+      expect(upsertMock).toHaveBeenCalledTimes(1);
+      expect(upsertMock).toHaveBeenCalledWith(createEntities, {
+        conflictPaths: ['externalId'],
+        skipUpdateIfNoValuesChanged: true,
+      });
+      expect(findByMock).not.toHaveBeenCalled();
+      expect(deleteMock).toHaveBeenCalledTimes(1);
+      expect(deleteMock).toHaveBeenCalledWith(deleteEntities.map((e) => e.externalId));
     });
 
     it('should reject with error if entitiy for creation already exist', async () => {
@@ -239,7 +286,7 @@ describe('EntityManager', () => {
       const deleteEntities = [createFakeEntity(), createFakeEntity()];
 
       findOneMock.mockResolvedValue(createEntities[0]);
-      insertMock.mockResolvedValue(undefined);
+      upsertMock.mockResolvedValue(undefined);
       findByMock.mockResolvedValue(deleteEntities);
       deleteMock.mockResolvedValue(undefined);
 
@@ -249,24 +296,6 @@ describe('EntityManager', () => {
       ]);
 
       await expect(multiPromise).rejects.toThrow(IdAlreadyExistsError);
-    });
-
-    it('should reject with error if entitiy for deletion does not exist', async () => {
-      const createEntities = [createFakeEntity(), createFakeEntity()];
-      const deleteEntities = [createFakeEntity(), createFakeEntity()];
-      const deleteIds = deleteEntities.map((e) => e.externalId);
-
-      findOneMock.mockResolvedValue(undefined);
-      insertMock.mockResolvedValue(undefined);
-      findByMock.mockResolvedValue(deleteEntities[0]);
-      deleteMock.mockResolvedValue(undefined);
-
-      const multiPromise = entityManager.multiOperationBulks([
-        { action: BulkActions.CREATE, payload: createEntities },
-        { action: BulkActions.DELETE, payload: deleteIds },
-      ]);
-
-      await expect(multiPromise).rejects.toThrow(`couldn't find one of the specified ids: ${JSON.stringify(deleteIds)}`);
     });
 
     it('rejects on DB error caused in creation', async () => {
@@ -285,10 +314,8 @@ describe('EntityManager', () => {
     it('rejects on DB error caused in deletion', async () => {
       const createEntities = [createFakeEntity(), createFakeEntity()];
       const deleteEntities = [createFakeEntity(), createFakeEntity()];
-      findOneMock.mockResolvedValue(undefined);
-      insertMock.mockResolvedValue(undefined);
-      findByMock.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
-      deleteMock.mockResolvedValue(undefined);
+      findOneMock.mockResolvedValue(null);
+      deleteMock.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
       const multiPromise = entityManager.multiOperationBulks([
         { action: BulkActions.CREATE, payload: createEntities },

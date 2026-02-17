@@ -3,10 +3,9 @@ import { RequestHandler } from 'express';
 import httpStatus, { StatusCodes } from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-import { HttpError } from '../../common/errors';
 import { Entity } from '../models/entity';
 import { EntityManager } from '../models/entityManager';
-import { BulkRequestValidationError, EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
+import { BulkRequestValidationError } from '../models/errors';
 import { BulkActions, BulkRequestBody } from '../models/operations';
 import { IEntity } from '../models/interfaces';
 
@@ -39,7 +38,6 @@ export class EntityController {
 
       return res.status(httpStatus.OK).json(entity);
     } catch (error) {
-      this.errorEnricher(error);
       return next(error);
     }
   };
@@ -49,7 +47,6 @@ export class EntityController {
       await this.manager.createEntity(req.body);
       return res.sendStatus(httpStatus.CREATED);
     } catch (error) {
-      this.errorEnricher(error);
       return next(error);
     }
   };
@@ -70,7 +67,6 @@ export class EntityController {
 
       return res.sendStatus(StatusCodes.OK);
     } catch (error) {
-      this.errorEnricher(error);
       return next(error);
     }
   };
@@ -82,22 +78,9 @@ export class EntityController {
       await this.manager.deleteEntity(externalId);
       res.sendStatus(httpStatus.NO_CONTENT);
     } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        (error as HttpError).status = httpStatus.NOT_FOUND;
-      }
       return next(error);
     }
   };
-
-  private errorEnricher(error: unknown): void {
-    if (error instanceof BulkRequestValidationError) {
-      (error as HttpError).status = httpStatus.BAD_REQUEST;
-    } else if (error instanceof IdAlreadyExistsError) {
-      (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
-    } else if (error instanceof EntityNotFoundError) {
-      (error as HttpError).status = httpStatus.NOT_FOUND;
-    }
-  }
 
   private validateBulkRequest(bulkReq: BulkRequestBody): void {
     try {
