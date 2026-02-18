@@ -1,7 +1,7 @@
 import { HttpError } from '@map-colonies/error-express-handler';
 import { StatusCodes } from 'http-status-codes';
 
-export abstract class BaseHttpError extends Error implements HttpError {
+abstract class BaseHttpError extends Error implements HttpError {
   public constructor(
     message: string,
     public readonly statusCode: number
