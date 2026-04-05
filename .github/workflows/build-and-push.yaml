@@ -1,31 +1,76 @@
-name: Build and push artifacts
+name: Push Artifacts to Azure Registry
 
 on:
   push:
     tags:
       - 'v*'
 
-  workflow_dispatch:
-    inputs:
-      version:
-        required: true
-        type: string
-env:
-  HELM_EXPERIMENTAL_OCI: 1
-
 permissions:
   contents: write
-  pull-requests: write
+  packages: write
+
+env:
+  DOMAIN: vector
 
 jobs:
-  build_and_push_docker:
-    uses: MapColonies/shared-workflows/.github/workflows/build-and-push-docker.yaml@v4
-    secrets: inherit
-    with:
-      scope: vector
+  push-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_URL }}
+          username: ${{ secrets.ACR_PUSH_USER }}
+          password: ${{ secrets.ACR_PUSH_TOKEN }}
 
-  build_and_push_helm:
-    uses: MapColonies/shared-workflows/.github/workflows/build-and-push-helm.yaml@v4
-    secrets: inherit
-    with:
-      scope: vector
+      - name: Build and Push Docker image
+        id: build_and_push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.ACR_URL }}/${{ env.DOMAIN }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+
+      - name: Update Docker Image in artifacts.json
+        uses: MapColonies/shared-workflows/actions/update-artifacts-file@update-artifacts-file-v1
+        with:
+          domain: ${{ env.DOMAIN }}
+          type: docker
+          artifact_name: ${{ github.event.repository.name }}
+          artifact_tag: ${{ github.ref_name }} # Using the git tag directly
+          registry: ${{ secrets.ACR_URL }}
+          github_token: ${{ secrets.GH_PAT }}
+
+  push-helm-package:
+    runs-on: ubuntu-latest
+    needs: push-docker-image
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Remove v from the tag
+        id: remove_v
+        run: |
+          TAG=${{ github.ref_name }}
+          echo "VERSION=${TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Push Chart to ACR
+        uses: appany/helm-oci-chart-releaser@v0.5.0
+        with:
+          name: ${{ github.event.repository.name }}
+          repository: helm/${{ env.DOMAIN }}
+          tag: ${{ steps.remove_v.outputs.version }}
+          path: ./helm
+          registry: ${{ secrets.ACR_URL }}
+          registry_username: ${{ secrets.ACR_PUSH_USER }}
+          registry_password: ${{ secrets.ACR_PUSH_TOKEN }}
+          update_dependencies: 'true' # Defaults to false
+
+      - name: Update Helm Package in artifacts.json
+        uses: MapColonies/shared-workflows/actions/update-artifacts-file@update-artifacts-file-v1
+        with:
+          domain: ${{ env.DOMAIN }}
+          type: helm
+          artifact_name: ${{ github.event.repository.name }}
+          artifact_tag: ${{ steps.remove_v.outputs.version }}
+          registry: ${{ secrets.ACR_URL }}
+          github_token: ${{ secrets.GH_PAT }}

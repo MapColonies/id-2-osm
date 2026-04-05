@@ -145,14 +145,14 @@ describe('entity', function () {
 
   describe('POST /entity/bulk Action: CREATE', function () {
     describe('Happy Path 🙂', function () {
-      it('should return 201 status code', async function () {
+      it('should return 200 status code', async function () {
         const requestBody: BulkCreateRequestBody = { action: BulkActions.CREATE, payload: [createFakeEntity()] };
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.OK);
       });
 
-      it('should return 201 status for entities with the same osmId while different externalId', async function () {
+      it('should return 200 status for entities with the same osmId while different externalId', async function () {
         const entity1 = createFakeEntity();
         const entity2 = createFakeEntity();
         const requestBody: BulkCreateRequestBody = { action: BulkActions.CREATE, payload: [entity1, { ...entity2, osmId: entity1.osmId }] };
@@ -161,13 +161,21 @@ describe('entity', function () {
         expect(response.status).toBe(httpStatusCodes.OK);
       });
 
-      it('should return 201 status code even if there is an existing entity with the same osmId', async function () {
+      it('should return 200 status code even if there is an existing entity with the same osmId', async function () {
         const existingEntity = await createDbEntity(container);
         const newEntity = createFakeEntity();
         const requestBody: BulkCreateRequestBody = {
           action: BulkActions.CREATE,
           payload: [{ externalId: newEntity.externalId, osmId: existingEntity.osmId }],
         };
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+      });
+
+      it('should return 200 status code if an entity with the same id pair exists', async function () {
+        const existingEntity = await createDbEntity(container);
+        const requestBody: BulkCreateRequestBody = { action: BulkActions.CREATE, payload: [createFakeEntity(), existingEntity, createFakeEntity()] };
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.OK);
@@ -241,9 +249,12 @@ describe('entity', function () {
     });
 
     describe('Sad Path 😥', function () {
-      it('should return 422 status code if an entity with the same ids exists', async function () {
+      it('should return 422 status code if an entity with the same external id and different osm id exists', async function () {
         const existingEntity = await createDbEntity(container);
-        const requestBody: BulkCreateRequestBody = { action: BulkActions.CREATE, payload: [createFakeEntity(), existingEntity, createFakeEntity()] };
+        const requestBody: BulkCreateRequestBody = {
+          action: BulkActions.CREATE,
+          payload: [createFakeEntity(), { externalId: existingEntity.externalId, osmId: createFakeEntity().osmId }, createFakeEntity()],
+        };
         const response = await requestSender.postBulk(app, requestBody);
 
         expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
@@ -488,6 +499,42 @@ describe('entity', function () {
         const getDeletedResponse = await requestSender.getEntity(app, entityForDeletion.externalId);
         expect(getDeletedResponse.status).toBe(httpStatusCodes.NOT_FOUND);
       });
+
+      it('should return 200 status code if in multi operation bulks an entity for deletion doest not exist', async function () {
+        const randomId = faker.string.alphanumeric(20);
+        const entityForCreation = createFakeEntity();
+        const requestBody: BulkRequestBody = [
+          { action: BulkActions.CREATE, payload: [entityForCreation] },
+          { action: BulkActions.DELETE, payload: [randomId] },
+        ];
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+
+        const getResponse = await requestSender.getEntity(app, randomId);
+        expect(getResponse.status).toBe(httpStatusCodes.NOT_FOUND);
+
+        const getCreatedResponse = await requestSender.getEntity(app, entityForCreation.externalId);
+        expect(getCreatedResponse.status).toBe(httpStatusCodes.OK);
+      });
+
+      it('should return 200 status code if in multi operation bulk an entity for creation already exist with the same pair', async function () {
+        const entityForCreation = await createDbEntity(container);
+        const entityForDeletion = await createDbEntity(container);
+        const requestBody: BulkRequestBody = [
+          { action: BulkActions.DELETE, payload: [entityForDeletion.externalId] },
+          { action: BulkActions.CREATE, payload: [entityForCreation] },
+        ];
+        const response = await requestSender.postBulk(app, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+
+        const getResponse = await requestSender.getEntity(app, entityForCreation.externalId);
+        expect(getResponse.status).toBe(httpStatusCodes.OK);
+
+        const getDeletedResponse = await requestSender.getEntity(app, entityForDeletion.externalId);
+        expect(getDeletedResponse.status).toBe(httpStatusCodes.NOT_FOUND);
+      });
     });
 
     describe('Bad Path 😡', function () {
@@ -570,28 +617,12 @@ describe('entity', function () {
     });
 
     describe('Sad Path 😥', function () {
-      it('should in multi operation bulks rollback and return 404 if an entity for deletion not found', async function () {
-        const randomId = faker.string.alphanumeric(20);
-        const entityForCreation = createFakeEntity();
-        const requestBody: BulkRequestBody = [
-          { action: BulkActions.CREATE, payload: [entityForCreation] },
-          { action: BulkActions.DELETE, payload: [randomId] },
-        ];
-        const response = await requestSender.postBulk(app, requestBody);
-
-        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', `couldn't find one of the specified ids: ${JSON.stringify([randomId])}`);
-
-        const getResponse = await requestSender.getEntity(app, entityForCreation.externalId);
-        expect(getResponse.status).toBe(httpStatusCodes.NOT_FOUND);
-      });
-
-      it('should in multi operation bulks rollback and return 404 if an entity for creation already exist', async function () {
+      it('should in multi operation bulks rollback and return 404 if an entity for creation already exist with different osmId', async function () {
         const entityForCreation = await createDbEntity(container);
         const entityForDeletion = await createDbEntity(container);
         const requestBody: BulkRequestBody = [
           { action: BulkActions.DELETE, payload: [entityForDeletion.externalId] },
-          { action: BulkActions.CREATE, payload: [entityForCreation] },
+          { action: BulkActions.CREATE, payload: [{ externalId: entityForCreation.externalId, osmId: createFakeEntity().osmId }] },
         ];
         const response = await requestSender.postBulk(app, requestBody);
 
@@ -602,13 +633,14 @@ describe('entity', function () {
         expect(getResponse.status).toBe(httpStatusCodes.OK);
       });
 
-      it('should rollback and return 500 status code if an db exception happens in the first operation', async function () {
+      it('should rollback and return 500 status code if a db exception happens in the delete operation', async function () {
         const entityRepository = container.resolve<Repository<Entity>>(ENTITY_REPOSITORY_SYMBOL);
 
-        const findByMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const findOneMock = jest.fn().mockResolvedValue(undefined);
-        const insertMock = jest.fn().mockResolvedValue(undefined);
-        const deleteMock = jest.fn();
+        const deleteMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const findOneMock = jest.fn().mockResolvedValue(null);
+        const upsertMock = jest.fn().mockResolvedValue(undefined);
+        const findByMock = jest.fn();
+
         const [mockedApp, mockedContainer] = await getApp({
           override: [
             {
@@ -616,7 +648,7 @@ describe('entity', function () {
               provider: {
                 useValue: {
                   findOne: findOneMock,
-                  insert: insertMock,
+                  upsert: upsertMock,
                   findBy: findByMock,
                   delete: deleteMock,
                 },
@@ -639,8 +671,55 @@ describe('entity', function () {
         expect(response.body).toHaveProperty('message', 'failed');
 
         expect(findOneMock).toHaveBeenCalledTimes(1);
-        expect(insertMock).toHaveBeenCalledTimes(1);
-        expect(findByMock).toHaveBeenCalledTimes(1);
+        expect(upsertMock).toHaveBeenCalledTimes(1);
+        expect(findByMock).not.toHaveBeenCalled();
+        expect(deleteMock).toHaveBeenCalledTimes(1);
+
+        const creationCheck = await entityRepository.findOneBy({ externalId: entityForCreation.externalId });
+        expect(creationCheck).toBeNull();
+
+        await mockedContainer.dispose();
+      });
+
+      it('should rollback and return 500 status code if an db exception happens in the create operation findOne', async function () {
+        const entityRepository = container.resolve<Repository<Entity>>(ENTITY_REPOSITORY_SYMBOL);
+
+        const findOneMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const upsertMock = jest.fn();
+        const findByMock = jest.fn();
+        const deleteMock = jest.fn();
+        const [mockedApp, mockedContainer] = await getApp({
+          override: [
+            {
+              token: ENTITY_REPOSITORY_SYMBOL,
+              provider: {
+                useValue: {
+                  findOne: findOneMock,
+                  upsert: upsertMock,
+                  findBy: findByMock,
+                  delete: deleteMock,
+                },
+              },
+            },
+            { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+          ],
+          useChild: true,
+        });
+
+        const entityForCreation = createFakeEntity();
+        const entityForDeletion = createFakeEntity();
+        const requestBody: BulkRequestBody = [
+          { action: BulkActions.CREATE, payload: [entityForCreation] },
+          { action: BulkActions.DELETE, payload: [entityForDeletion.externalId] },
+        ];
+        const response = await requestSender.postBulk(mockedApp, requestBody);
+
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
+
+        expect(findOneMock).toHaveBeenCalledTimes(1);
+        expect(upsertMock).not.toHaveBeenCalled();
+        expect(findByMock).not.toHaveBeenCalled();
         expect(deleteMock).not.toHaveBeenCalled();
 
         const creationCheck = await entityRepository.findOneBy({ externalId: entityForCreation.externalId });
@@ -649,12 +728,12 @@ describe('entity', function () {
         await mockedContainer.dispose();
       });
 
-      it('should rollback and return 500 status code if an db exception happens in the second operation', async function () {
+      it('should rollback and return 500 status code if an db exception happens in the create operation upsert', async function () {
         const entityRepository = container.resolve<Repository<Entity>>(ENTITY_REPOSITORY_SYMBOL);
 
-        const findByMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const findOneMock = jest.fn().mockResolvedValue(undefined);
-        const insertMock = jest.fn().mockResolvedValue(undefined);
+        const findOneMock = jest.fn().mockResolvedValue(null);
+        const upsertMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const findByMock = jest.fn();
         const deleteMock = jest.fn();
         const [mockedApp, mockedContainer] = await getApp({
           override: [
@@ -663,7 +742,7 @@ describe('entity', function () {
               provider: {
                 useValue: {
                   findOne: findOneMock,
-                  insert: insertMock,
+                  upsert: upsertMock,
                   findBy: findByMock,
                   delete: deleteMock,
                 },
@@ -686,8 +765,8 @@ describe('entity', function () {
         expect(response.body).toHaveProperty('message', 'failed');
 
         expect(findOneMock).toHaveBeenCalledTimes(1);
-        expect(insertMock).toHaveBeenCalledTimes(1);
-        expect(findByMock).toHaveBeenCalledTimes(1);
+        expect(upsertMock).toHaveBeenCalledTimes(1);
+        expect(findByMock).not.toHaveBeenCalled();
         expect(deleteMock).not.toHaveBeenCalled();
 
         const creationCheck = await entityRepository.findOneBy({ externalId: entityForCreation.externalId });

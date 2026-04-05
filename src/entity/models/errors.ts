@@ -1,20 +1,30 @@
-export class IdAlreadyExistsError extends Error {
-  public constructor(message: string) {
+import { HttpError } from '@map-colonies/error-express-handler';
+import { StatusCodes } from 'http-status-codes';
+
+abstract class BaseHttpError extends Error implements HttpError {
+  public constructor(
+    message: string,
+    public readonly statusCode: number
+  ) {
     super(message);
-    Object.setPrototypeOf(this, IdAlreadyExistsError.prototype);
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
-export class EntityNotFoundError extends Error {
+export class IdAlreadyExistsError extends BaseHttpError {
   public constructor(message: string) {
-    super(message);
-    Object.setPrototypeOf(this, EntityNotFoundError.prototype);
+    super(message, StatusCodes.UNPROCESSABLE_ENTITY);
   }
 }
 
-export class BulkRequestValidationError extends Error {
+export class EntityNotFoundError extends BaseHttpError {
   public constructor(message: string) {
-    super(message);
-    Object.setPrototypeOf(this, BulkRequestValidationError.prototype);
+    super(message, StatusCodes.NOT_FOUND);
+  }
+}
+
+export class BulkRequestValidationError extends BaseHttpError {
+  public constructor(message: string) {
+    super(message, StatusCodes.BAD_REQUEST);
   }
 }

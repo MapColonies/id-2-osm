@@ -1,6 +1,6 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { In, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { runInTransaction } from 'typeorm-transactional';
 import { DEFAULT_TRANSACTION_OPTIONS } from '../../common/db/connection';
 import { SERVICES } from '../../common/constants';
@@ -45,58 +45,59 @@ export class EntityManager {
   public async createEntities(newEntities: IEntity[]): Promise<void> {
     this.logger.info({ msg: `creating bulk entities`, amount: newEntities.length });
 
-    const dbEntity = await this.repository.findOne({
-      where: [
-        {
-          externalId: In(newEntities.map((entity) => entity.externalId)),
-        },
-      ],
+    const conflictingEntity = await this.repository.findOne({
+      where: newEntities.map((entity) => ({
+        externalId: entity.externalId,
+        osmId: Not(entity.osmId),
+      })),
     });
 
-    if (dbEntity) {
-      const message = `an entity with the following ids: ${JSON.stringify(dbEntity)} already exists`;
-
+    if (conflictingEntity !== null) {
       this.logger.error({
-        msg: 'could not bulk create bulk, found an entity with already existing id',
-        osmId: dbEntity.osmId,
-        externalId: dbEntity.externalId,
+        msg: 'could not bulk create, a conflicting entity already exists',
+        conflictingEntity,
       });
 
-      throw new IdAlreadyExistsError(message);
+      throw new IdAlreadyExistsError(`an entity with the following ids: ${JSON.stringify(conflictingEntity)} already exists`);
     }
 
-    await this.repository.insert(newEntities);
+    await this.repository.upsert(newEntities, {
+      conflictPaths: ['externalId'],
+      skipUpdateIfNoValuesChanged: true,
+    });
   }
 
-  public async deleteEntity(externalId: string): Promise<void> {
+  public async deleteEntity(externalId: string, validateExists = true): Promise<void> {
     this.logger.info({ msg: 'deleting entity', externalId });
 
-    const entity = await this.repository.findOneBy({ externalId });
+    if (validateExists) {
+      const entity = await this.repository.findOneBy({ externalId });
 
-    if (!entity) {
-      this.logger.error({ msg: 'could not find the entity for deletion', externalId });
+      if (entity === null) {
+        this.logger.error({ msg: 'could not find the entity for deletion', externalId });
 
-      throw new EntityNotFoundError("couldn't find an entity with the given id to delete");
+        throw new EntityNotFoundError("couldn't find an entity with the given id to delete");
+      }
     }
 
     await this.repository.delete(externalId);
   }
 
-  public async deleteEntities(externalIds: string[]): Promise<void> {
+  public async deleteEntities(externalIds: string[], validateExists = true): Promise<void> {
     this.logger.info({ msg: 'deleting bulk entities', amount: externalIds.length });
+    if (validateExists) {
+      const entities = await this.repository.findBy({ externalId: In(externalIds) });
 
-    const entities = await this.repository.findBy({ externalId: In(externalIds) });
+      if (entities.length !== externalIds.length) {
+        this.logger.error({
+          msg: `could not find ${externalIds.length - entities.length} of the specified ids`,
+          expected: externalIds.length,
+          received: entities.length,
+        });
 
-    if (entities.length !== externalIds.length) {
-      this.logger.error({
-        msg: `could not find ${externalIds.length - entities.length} of the specified ids`,
-        expected: externalIds.length,
-        received: entities.length,
-      });
-
-      throw new EntityNotFoundError(`couldn't find one of the specified ids: ${JSON.stringify(externalIds)}`);
+        throw new EntityNotFoundError(`couldn't find one of the specified ids: ${JSON.stringify(externalIds)}`);
+      }
     }
-
     await this.repository.delete(externalIds);
   }
 
@@ -121,7 +122,7 @@ export class EntityManager {
         await this.createEntities(createBulk.payload);
       }
       if (deleteCount > 0) {
-        await this.deleteEntities(deleteBulk.payload);
+        await this.deleteEntities(deleteBulk.payload, false);
       }
     }, DEFAULT_TRANSACTION_OPTIONS);
 
