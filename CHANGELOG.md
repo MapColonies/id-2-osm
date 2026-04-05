@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/MapColonies/id-2-osm/compare/v2.2.0...v2.3.0) (2026-04-05)
+
+
+### Features
+
+* **entity:** bulk operation improvement ([#170](https://github.com/MapColonies/id-2-osm/issues/170)) ([4b98baa](https://github.com/MapColonies/id-2-osm/commit/4b98baa1358c9a73e3f0322921ebe52d9f403324))
+
 ## [2.2.0](https://github.com/MapColonies/id-2-osm/compare/v2.1.2...v2.2.0) (2025-03-02)
 
 
