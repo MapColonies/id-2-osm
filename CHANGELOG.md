@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.1](https://github.com/MapColonies/id-2-osm/compare/v2.3.0...v2.3.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* upgrade mapcolonies-telemetry to 10.1.0 ([#172](https://github.com/MapColonies/id-2-osm/issues/172)) ([0c1d232](https://github.com/MapColonies/id-2-osm/commit/0c1d232b37e8bac6e3c03362fd5de684b2263159))
+
 ## [2.3.0](https://github.com/MapColonies/id-2-osm/compare/v2.2.0...v2.3.0) (2026-04-05)
 
 
