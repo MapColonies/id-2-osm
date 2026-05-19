@@ -13,7 +13,8 @@
     "logger": {
       "level": "info",
       "prettyPrint": false
-    }
+    },
+    "metrics": {}
   },
   "server": {
     "port": 8080,
