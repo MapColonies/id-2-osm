@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.2](https://github.com/MapColonies/id-2-osm/compare/v2.3.1...v2.3.2) (2026-05-19)
+
+
+### Bug Fixes
+
+* config and schema update ([#174](https://github.com/MapColonies/id-2-osm/issues/174)) ([61285f3](https://github.com/MapColonies/id-2-osm/commit/61285f38c4f9b412e3588b2d04da788560d473e8))
+
 ## [2.3.1](https://github.com/MapColonies/id-2-osm/compare/v2.3.0...v2.3.1) (2026-05-18)
 
 
