@@ -11,7 +11,9 @@ import { getApp } from './app';
 let depContainer: DependencyContainer | undefined;
 
 void getApp()
-  .then(([app, depContainer]) => {
+  .then(([app, container]) => {
+    depContainer = container;
+    
     const logger = depContainer.resolve<Logger>(SERVICES.LOGGER);
     const config = depContainer.resolve<ConfigType>(SERVICES.CONFIG);
     const port = config.get('server.port');
